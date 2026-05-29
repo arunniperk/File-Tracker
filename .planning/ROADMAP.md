@@ -70,7 +70,7 @@ Plans:
 
 Plans:
 - [x] 03-01-PLAN.md — Operational dashboard with pending/recent/overdue tracking, TabControl layout (DASH-01, DASH-02, DASH-03)
-- [ ] 03-02-PLAN.md — Document attachments with filesystem storage and UI integration (ATCH-01, ATCH-02, ATCH-03)
+- [x] 03-02-PLAN.md — Document attachments with filesystem storage and UI integration (ATCH-01, ATCH-02, ATCH-03)
 - [ ] 03-03-PLAN.md — Monthly reports with PDF (QuestPDF) and Excel (ClosedXML) export (RPT-01, RPT-02, RPT-03, RPT-04)
 
 ### Phase 4: Data Safety & Management
@@ -93,5 +93,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Foundation — Data Model & Core Registration | 3/3 | Complete   | 2026-05-29 |
 | 2. Search & Movement Tracking | 3/3 | Complete   | 2026-05-29 |
-| 3. Dashboard, Reports & Attachments | 1/3 | In Progress|  |
+| 3. Dashboard, Reports & Attachments | 2/3 | In Progress|  |
 | 4. Data Safety & Management | 0/TBD | Not started | - |

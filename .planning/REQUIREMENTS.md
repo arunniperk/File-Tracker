@@ -39,9 +39,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Document Attachments
 
-- [ ] **ATCH-01**: User can attach scanned document files (PDF, JPG, PNG) to any registered document
-- [ ] **ATCH-02**: User can view attached files by opening them in the default system viewer
-- [ ] **ATCH-03**: Attachments are stored on the local filesystem (not in the database), organized by document
+- [x] **ATCH-01**: User can attach scanned document files (PDF, JPG, PNG) to any registered document
+- [x] **ATCH-02**: User can view attached files by opening them in the default system viewer
+- [x] **ATCH-03**: Attachments are stored on the local filesystem (not in the database), organized by document
 
 ### Dashboard
 
@@ -100,9 +100,9 @@ Deferred to future release. Tracked but not in current roadmap.
 | RPT-02 | Phase 3 | Pending |
 | RPT-03 | Phase 3 | Pending |
 | RPT-04 | Phase 3 | Pending |
-| ATCH-01 | Phase 3 | Pending |
-| ATCH-02 | Phase 3 | Pending |
-| ATCH-03 | Phase 3 | Pending |
+| ATCH-01 | Phase 3 | Complete |
+| ATCH-02 | Phase 3 | Complete |
+| ATCH-03 | Phase 3 | Complete |
 | DASH-01 | Phase 3 | Complete |
 | DASH-02 | Phase 3 | Complete |
 | DASH-03 | Phase 3 | Complete |

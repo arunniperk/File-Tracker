@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Plan 01-01 complete — walking skeleton with SQLite + WPF
-last_updated: "2026-05-29T10:13:15.139Z"
+stopped_at: Completed 03-02-PLAN.md
+last_updated: "2026-05-29T10:25:29.056Z"
 last_activity: 2026-05-29
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 9
-  completed_plans: 7
+  completed_plans: 8
   percent: 50
 ---
 
@@ -30,7 +30,7 @@ Plan: 3 of 3 (01-01: Walking Skeleton — Complete)
 Status: Phase complete — ready for verification
 Last activity: 2026-05-29
 
-Progress: [████████░░] 78%
+Progress: [█████████░] 89%
 
 ## Performance Metrics
 
@@ -57,6 +57,7 @@ Progress: [████████░░] 78%
 | Phase 02-search-movement-tracking P02 | 7 | 2 tasks | 11 files |
 | Phase 02-search-movement-tracking P03 | 40min | 2 tasks | 20 files |
 | Phase 03-dashboard-reports-attachments P01 | 8 | 2 tasks | 13 files |
+| Phase 03-dashboard-reports-attachments P02 | 10 | - tasks | - files |
 
 ## Accumulated Context
 
@@ -81,6 +82,8 @@ Recent decisions affecting current work:
 - [Phase ?]: IMovementRepository exposes ONLY InsertAsync/GetByDocumentIdAsync/GetCurrentLocationAsync — compiler-enforced immutability (D-08/MOVE-04)
 - [Phase ?]: CurrentLocation is display-only property on Document populated post-search — no DB column (Pitfall 4 mitigation)
 - [Phase ?]: Dashboard queries use single-JOIN ROW_NUMBER() OVER (PARTITION BY) pattern to avoid N+1 per Pitfall 4
+- [Phase ?]: Attachments stored on filesystem under LocalAppData, not as SQLite BLOBs (Pitfall 8)
+- [Phase ?]: Filename collision prevention via timestamp prefix yyyyMMdd_HHmmss rather than GUID
 
 ### Pending Todos
 
@@ -102,6 +105,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-29T10:13:06.145Z
-Stopped at: Plan 01-01 complete — walking skeleton with SQLite + WPF
+Last session: 2026-05-29T10:25:29.045Z
+Stopped at: Completed 03-02-PLAN.md
 Resume file: None
