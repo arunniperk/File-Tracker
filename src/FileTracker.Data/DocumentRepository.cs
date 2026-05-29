@@ -2,6 +2,7 @@ using System.Data;
 using Dapper;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
+using FileTracker.Core.Dtos;
 using FileTracker.Core.Models;
 
 namespace FileTracker.Data;
@@ -132,5 +133,67 @@ public class DocumentRepository : IDocumentRepository
 
         var results = await _db.QueryAsync<Document>(sql);
         return results.AsList();
+    }
+
+    public async Task<(IReadOnlyList<Document> Results, int TotalCount)> SearchAsync(SearchDocumentDto filters)
+    {
+        var parameters = new DynamicParameters();
+        var conditions = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(filters.OriginalFileNumber))
+        {
+            conditions.Add("d.OriginalFileNumber LIKE @FileNumber");
+            parameters.Add("FileNumber", $"%{filters.OriginalFileNumber.Trim()}%");
+        }
+
+        if (!string.IsNullOrWhiteSpace(filters.TrackingId))
+        {
+            conditions.Add("d.TrackingId LIKE @TrackingId");
+            parameters.Add("TrackingId", $"%{filters.TrackingId.Trim()}%");
+        }
+
+        if (!string.IsNullOrWhiteSpace(filters.Subject))
+        {
+            conditions.Add("d.Subject LIKE @Subject");
+            parameters.Add("Subject", $"%{filters.Subject.Trim()}%");
+        }
+
+        if (!string.IsNullOrWhiteSpace(filters.SenderOrRecipient))
+        {
+            conditions.Add("(d.Sender LIKE @SenderOrRec OR d.Recipient LIKE @SenderOrRec)");
+            parameters.Add("SenderOrRec", $"%{filters.SenderOrRecipient.Trim()}%");
+        }
+
+        if (filters.FromDate.HasValue)
+        {
+            conditions.Add("d.DocumentDate >= @FromDate");
+            parameters.Add("FromDate", filters.FromDate.Value.ToString("yyyy-MM-dd"));
+        }
+
+        if (filters.ToDate.HasValue)
+        {
+            conditions.Add("d.DocumentDate <= @ToDate");
+            parameters.Add("ToDate", filters.ToDate.Value.ToString("yyyy-MM-dd"));
+        }
+
+        var whereClause = conditions.Count > 0
+            ? "WHERE d.IsDeleted = 0 AND " + string.Join(" AND ", conditions)
+            : "WHERE d.IsDeleted = 0";
+
+        var dataSql = $@"
+            SELECT d.* FROM Documents d
+            {whereClause}
+            ORDER BY d.CreatedAt DESC
+            LIMIT @PageSize OFFSET @Offset;";
+
+        var countSql = $"SELECT COUNT(*) FROM Documents d {whereClause};";
+
+        parameters.Add("PageSize", filters.PageSize);
+        parameters.Add("Offset", (filters.Page - 1) * filters.PageSize);
+
+        var results = await _db.QueryAsync<Document>(dataSql, parameters);
+        var totalCount = await _db.QuerySingleAsync<int>(countSql, parameters);
+
+        return (results.AsList(), totalCount);
     }
 }

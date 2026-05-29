@@ -9,4 +9,5 @@ public interface IDocumentService
     Task UpdateAsync(int documentId, RegisterDocumentDto dto);
     Task<Document?> GetByIdAsync(int id);
     Task<IReadOnlyList<Document>> GetAllAsync();
+    Task<SearchResultDto> SearchAsync(SearchDocumentDto filters);
 }

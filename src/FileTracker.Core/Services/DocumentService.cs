@@ -146,4 +146,33 @@ public class DocumentService : IDocumentService
     {
         return _repository.GetAllAsync();
     }
+
+    public async Task<SearchResultDto> SearchAsync(SearchDocumentDto filters)
+    {
+        // Clamp Page to >= 1
+        if (filters.Page < 1)
+        {
+            filters.Page = 1;
+        }
+
+        // Clamp PageSize to 1..100
+        if (filters.PageSize < 1)
+        {
+            filters.PageSize = 20;
+        }
+        else if (filters.PageSize > 100)
+        {
+            filters.PageSize = 100;
+        }
+
+        var (results, totalCount) = await _repository.SearchAsync(filters);
+
+        return new SearchResultDto
+        {
+            Results = results,
+            TotalCount = totalCount,
+            Page = filters.Page,
+            PageSize = filters.PageSize
+        };
+    }
 }
