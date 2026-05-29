@@ -47,7 +47,12 @@ Plans:
   3. User can view the complete movement history of any document — every officer it passed through, with dates, direction, and remarks
   4. User can record a document movement to any officer from the configurable hierarchy with direction (sent/received) and optional remarks
   5. User can see the current location of any document at a glance, the movement history is append-only and cannot be edited or deleted, and the officer hierarchy can be configured (positions added, renamed, reordered) through the UI
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Configurable officer hierarchy with position management UI (MOVE-05)
+- [ ] 02-02-PLAN.md — Document search with Dapper DynamicParameters and paginated DataGrid (SRCH-01, SRCH-02, SRCH-04)
+- [ ] 02-03-PLAN.md — Append-only movement tracking with recording dialog and history display (MOVE-01, MOVE-02, MOVE-03, MOVE-04, SRCH-03)
 **UI hint**: yes
 
 ### Phase 3: Dashboard, Reports & Attachments
