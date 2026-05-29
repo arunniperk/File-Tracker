@@ -1,8 +1,9 @@
 ﻿<Application x:Class="FileTracker.App.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:FileTracker.App">
+             xmlns:local="clr-namespace:FileTracker.App"
+             xmlns:converters="clr-namespace:FileTracker.App.Converters">
     <Application.Resources>
-         
+        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
     </Application.Resources>
 </Application>

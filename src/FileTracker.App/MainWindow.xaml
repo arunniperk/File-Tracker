@@ -4,9 +4,33 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FileTracker.App"
+        xmlns:views="clr-namespace:FileTracker.App.Views"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="File Tracker — IIT Dharwad" Height="700" Width="900">
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
+        <!-- Registration Form -->
+        <views:RegisterDocumentView x:Name="RegisterDocumentViewControl"
+                                     Grid.Row="0" />
+
+        <!-- Document List -->
+        <DataGrid Grid.Row="1" Margin="8,0,8,8"
+                  ItemsSource="{Binding Documents}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  HeadersVisibility="Column">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="40" />
+                <DataGridTextColumn Header="File Number" Binding="{Binding OriginalFileNumber}" Width="120" />
+                <DataGridTextColumn Header="Subject" Binding="{Binding Subject}" Width="200" />
+                <DataGridTextColumn Header="Date" Binding="{Binding DocumentDate, StringFormat={}{0:dd-MMM-yyyy}}" Width="100" />
+                <DataGridTextColumn Header="Sender" Binding="{Binding Sender}" Width="150" />
+                <DataGridTextColumn Header="Remarks" Binding="{Binding Remarks}" Width="*" />
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Window>
