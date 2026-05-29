@@ -140,6 +140,22 @@ public class DatabaseInitializer
         cmd.CommandText = createMovementsTable;
         await cmd.ExecuteNonQueryAsync();
 
+        const string createAttachmentsTable = @"
+            CREATE TABLE IF NOT EXISTS Attachments (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                DocumentId INTEGER NOT NULL,
+                FileName TEXT NOT NULL,
+                StoragePath TEXT NOT NULL,
+                FileSize INTEGER NOT NULL DEFAULT 0,
+                ContentType TEXT NOT NULL DEFAULT 'application/octet-stream',
+                CreatedAt TEXT NOT NULL DEFAULT (datetime('now')),
+                FOREIGN KEY (DocumentId) REFERENCES Documents(Id) ON DELETE CASCADE
+            );
+            CREATE INDEX IF NOT EXISTS IX_Attachments_DocumentId ON Attachments(DocumentId);";
+
+        cmd.CommandText = createAttachmentsTable;
+        await cmd.ExecuteNonQueryAsync();
+
         _logger.LogInformation("Database schema initialized successfully.");
     }
 }
