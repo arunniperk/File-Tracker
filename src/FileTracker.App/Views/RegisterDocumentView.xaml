@@ -8,6 +8,7 @@
              d:DesignHeight="500" d:DesignWidth="500">
     <UserControl.Resources>
         <converters:BoolInvertConverter x:Key="InverseBoolConverter" />
+        <converters:FilePathToFileNameConverter x:Key="FilePathToFileNameConverter" />
     </UserControl.Resources>
     <Border Padding="16" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4" Margin="8">
         <StackPanel>
@@ -59,6 +60,25 @@
                      Margin="0,0,0,8" Padding="4"
                      TextWrapping="Wrap" AcceptsReturn="True"
                      MinHeight="60" />
+
+            <!-- Attachments -->
+            <TextBlock Text="Attachments" FontWeight="SemiBold" Margin="0,12,0,4" />
+            <Button Content="+ Add Attachment" Command="{Binding AddAttachmentCommand}"
+                    Padding="8,4" HorizontalAlignment="Left" Margin="0,0,0,4" />
+            <ItemsControl ItemsSource="{Binding PendingAttachmentPaths}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Margin="0,2">
+                            <TextBlock Text="{Binding Converter={StaticResource FilePathToFileNameConverter}}"
+                                       VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis" MaxWidth="300" />
+                            <Button Content="&#x2715;" Padding="4,0" Margin="8,0,0,0"
+                                    Command="{Binding DataContext.RemovePendingAttachmentCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                    CommandParameter="{Binding}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
             <!-- Error message -->
             <TextBlock Text="{Binding ErrorMessage}" Foreground="Red"

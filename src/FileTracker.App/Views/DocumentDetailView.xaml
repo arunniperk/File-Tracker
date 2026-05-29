@@ -139,6 +139,37 @@
                 </StackPanel>
             </Grid>
 
+            <!-- Attachments Section -->
+            <TextBlock Text="Attachments" FontSize="16" FontWeight="SemiBold"
+                       Margin="0,24,0,8" />
+            <Button Content="+ Add Attachment" Command="{Binding AddAttachmentCommand}"
+                    Padding="8,4" HorizontalAlignment="Left" Margin="0,0,0,4" />
+            <ItemsControl ItemsSource="{Binding Attachments}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="4" Margin="0,2" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" VerticalAlignment="Center">
+                                    <Run Text="{Binding FileName}" FontWeight="SemiBold" />
+                                    <Run Text="{Binding FileSize, StringFormat=' ({0:N0} bytes)'}" FontSize="11" Foreground="Gray" />
+                                </TextBlock>
+                                <Button Grid.Column="1" Content="Open" Padding="8,2" Margin="4,0"
+                                        Command="{Binding DataContext.OpenAttachmentCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                        CommandParameter="{Binding}" />
+                                <Button Grid.Column="2" Content="Remove" Padding="8,2"
+                                        Command="{Binding DataContext.RemoveAttachmentCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                        CommandParameter="{Binding}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
             <!-- Audit Trail Section -->
             <TextBlock Text="Edit History" FontSize="16" FontWeight="SemiBold"
                        Margin="0,24,0,8" />

@@ -1,8 +1,10 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using Microsoft.Data.Sqlite;
+using Microsoft.Win32;
 using FileTracker.Core.Dtos;
 using FileTracker.Core.Models;
 using FileTracker.Core.Services;
@@ -13,6 +15,7 @@ namespace FileTracker.App.ViewModels;
 public partial class RegisterDocumentViewModel : ObservableValidator
 {
     private readonly IDocumentService _docService;
+    private readonly IAttachmentService _attachmentService;
     private bool _isClearing;
 
     [ObservableProperty]
@@ -56,9 +59,13 @@ public partial class RegisterDocumentViewModel : ObservableValidator
     [ObservableProperty]
     private string _modeIndicator = "Register New Document";
 
-    public RegisterDocumentViewModel(IDocumentService docService)
+    [ObservableProperty]
+    private ObservableCollection<string> _pendingAttachmentPaths = new();
+
+    public RegisterDocumentViewModel(IDocumentService docService, IAttachmentService attachmentService)
     {
         _docService = docService;
+        _attachmentService = attachmentService;
     }
 
     partial void OnSubjectChanged(string value)
@@ -83,6 +90,35 @@ public partial class RegisterDocumentViewModel : ObservableValidator
     {
         if (!_isClearing) HasUnsavedChanges = true;
         SubmitCommand.NotifyCanExecuteChanged();
+    }
+
+    [RelayCommand]
+    private void AddAttachment()
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = "Select Attachment",
+            Filter = "Document Files (*.pdf;*.jpg;*.jpeg;*.png)|*.pdf;*.jpg;*.jpeg;*.png",
+            Multiselect = true
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            foreach (var filePath in dialog.FileNames)
+            {
+                PendingAttachmentPaths.Add(filePath);
+            }
+            HasUnsavedChanges = true;
+        }
+    }
+
+    [RelayCommand]
+    private void RemovePendingAttachment(string? filePath)
+    {
+        if (filePath is not null)
+        {
+            PendingAttachmentPaths.Remove(filePath);
+        }
     }
 
     /// <summary>
@@ -132,13 +168,36 @@ public partial class RegisterDocumentViewModel : ObservableValidator
 
         try
         {
+            Document? document = null;
             if (IsEditMode && EditingDocumentId.HasValue)
             {
                 await _docService.UpdateAsync(EditingDocumentId.Value, dto);
+                document = await _docService.GetByIdAsync(EditingDocumentId.Value);
             }
             else
             {
-                await _docService.RegisterAsync(dto);
+                document = await _docService.RegisterAsync(dto);
+            }
+
+            // Process pending attachments for newly registered documents
+            if (!IsEditMode && document is not null && PendingAttachmentPaths.Count > 0)
+            {
+                var attachmentErrors = new List<string>();
+                foreach (var path in PendingAttachmentPaths.ToList())
+                {
+                    try
+                    {
+                        await _attachmentService.AddAttachmentAsync(document.Id, path);
+                    }
+                    catch (Exception ex)
+                    {
+                        attachmentErrors.Add($"{System.IO.Path.GetFileName(path)}: {ex.Message}");
+                    }
+                }
+                if (attachmentErrors.Count > 0)
+                {
+                    ErrorMessage = "Document saved, but some attachments failed: " + string.Join("; ", attachmentErrors);
+                }
             }
 
             ClearForm();
@@ -175,6 +234,7 @@ public partial class RegisterDocumentViewModel : ObservableValidator
         DocumentDate = DateTime.Today;
         ErrorMessage = string.Empty;
         ClearErrors();
+        PendingAttachmentPaths.Clear();
         _isClearing = false;
     }
 }

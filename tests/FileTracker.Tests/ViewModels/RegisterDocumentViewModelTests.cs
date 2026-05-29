@@ -9,15 +9,17 @@ namespace FileTracker.Tests.ViewModels;
 public class RegisterDocumentViewModelTests
 {
     private readonly Mock<IDocumentService> _docServiceMock;
+    private readonly Mock<IAttachmentService> _attachmentServiceMock;
 
     public RegisterDocumentViewModelTests()
     {
         _docServiceMock = new Mock<IDocumentService>();
+        _attachmentServiceMock = new Mock<IAttachmentService>();
     }
 
     private RegisterDocumentViewModel CreateViewModel()
     {
-        return new RegisterDocumentViewModel(_docServiceMock.Object);
+        return new RegisterDocumentViewModel(_docServiceMock.Object, _attachmentServiceMock.Object);
     }
 
     [Fact]

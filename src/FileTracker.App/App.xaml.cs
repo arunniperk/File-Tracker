@@ -10,6 +10,7 @@ using FileTracker.App.Views;
 
 using FileTracker.Core.Services;
 using FileTracker.Data;
+using FileTracker.App.Services;
 
 namespace FileTracker.App;
 
@@ -71,6 +72,8 @@ public partial class App : Application
         builder.Services.AddSingleton<IDocumentService, DocumentService>();
         builder.Services.AddSingleton<IPositionService, PositionService>();
         builder.Services.AddSingleton<IMovementService, MovementService>();
+        builder.Services.AddSingleton<IAttachmentRepository, AttachmentRepository>();
+        builder.Services.AddSingleton<IAttachmentService, AttachmentService>();
 
         // ViewModels — transient so each window gets fresh state
         builder.Services.AddTransient<MainViewModel>();
