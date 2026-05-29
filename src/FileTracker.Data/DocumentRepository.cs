@@ -66,6 +66,60 @@ public class DocumentRepository : IDocumentRepository
         return await _db.QuerySingleOrDefaultAsync<Document>(sql, new { Id = id });
     }
 
+    public async Task UpdateAsync(Document document, IDbTransaction? transaction = null)
+    {
+        const string sql = @"
+            UPDATE Documents SET
+                Subject = @Subject,
+                OriginalFileNumber = @OriginalFileNumber,
+                Sender = @Sender,
+                Recipient = @Recipient,
+                Remarks = @Remarks,
+                DocumentDate = @DocumentDate,
+                UpdatedAt = @UpdatedAt
+            WHERE Id = @Id;";
+
+        await _db.ExecuteAsync(sql, new
+        {
+            document.Id,
+            document.Subject,
+            document.OriginalFileNumber,
+            document.Sender,
+            document.Recipient,
+            document.Remarks,
+            DocumentDate = document.DocumentDate.ToString("yyyy-MM-dd"),
+            UpdatedAt = document.UpdatedAt.ToString("yyyy-MM-dd HH:mm:ss")
+        }, transaction);
+    }
+
+    public async Task InsertAuditEntryAsync(DocumentAudit audit, IDbTransaction? transaction = null)
+    {
+        const string sql = @"
+            INSERT INTO DocumentAudit (DocumentId, FieldName, OldValue, NewValue, ChangedAt)
+            VALUES (@DocumentId, @FieldName, @OldValue, @NewValue, @ChangedAt);";
+
+        await _db.ExecuteAsync(sql, new
+        {
+            audit.DocumentId,
+            audit.FieldName,
+            audit.OldValue,
+            audit.NewValue,
+            ChangedAt = audit.ChangedAt.ToString("yyyy-MM-dd HH:mm:ss")
+        }, transaction);
+    }
+
+    public async Task<IReadOnlyList<DocumentAudit>> GetAuditEntriesAsync(int documentId)
+    {
+        const string sql = @"
+            SELECT Id, DocumentId, FieldName, OldValue, NewValue, ChangedAt
+            FROM DocumentAudit
+            WHERE DocumentId = @DocumentId
+            ORDER BY ChangedAt DESC";
+
+        var results = await _db.QueryAsync<DocumentAudit>(sql, new { DocumentId = documentId });
+        return results.AsList();
+    }
+
     public async Task<IReadOnlyList<Document>> GetAllAsync()
     {
         const string sql = @"

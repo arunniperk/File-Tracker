@@ -6,6 +6,7 @@ namespace FileTracker.Core.Services;
 public interface IDocumentService
 {
     Task<Document> RegisterAsync(RegisterDocumentDto dto);
+    Task UpdateAsync(int documentId, RegisterDocumentDto dto);
     Task<Document?> GetByIdAsync(int id);
     Task<IReadOnlyList<Document>> GetAllAsync();
 }

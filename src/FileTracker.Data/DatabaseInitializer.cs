@@ -54,6 +54,22 @@ public class DatabaseInitializer
         cmd.CommandText = createTrackingSequence;
         await cmd.ExecuteNonQueryAsync();
 
+        const string createDocumentAudit = @"
+            CREATE TABLE IF NOT EXISTS DocumentAudit (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                DocumentId INTEGER NOT NULL,
+                FieldName TEXT NOT NULL,
+                OldValue TEXT,
+                NewValue TEXT,
+                ChangedAt TEXT NOT NULL DEFAULT (datetime('now')),
+                FOREIGN KEY (DocumentId) REFERENCES Documents(Id)
+            );
+            CREATE INDEX IF NOT EXISTS IX_DocumentAudit_DocumentId
+            ON DocumentAudit(DocumentId);";
+
+        cmd.CommandText = createDocumentAudit;
+        await cmd.ExecuteNonQueryAsync();
+
         _logger.LogInformation("Database schema initialized successfully.");
     }
 }

@@ -50,8 +50,85 @@ public class DocumentService : IDocumentService
             var document = dto.ToEntity(trackingId);
             document.Id = await _repository.InsertAsync(document, transaction);
 
+            // Insert initial audit entry for document creation
+            var createAudit = new DocumentAudit
+            {
+                DocumentId = document.Id,
+                FieldName = "Created",
+                OldValue = null,
+                NewValue = "Document registered",
+                ChangedAt = DateTime.UtcNow
+            };
+            await _repository.InsertAuditEntryAsync(createAudit, transaction);
+
             await transaction.CommitAsync();
             return document;
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
+    public async Task UpdateAsync(int documentId, RegisterDocumentDto dto)
+    {
+        var existing = await _repository.GetByIdAsync(documentId)
+            ?? throw new NotFoundException($"Document {documentId} not found");
+
+        var audits = new List<DocumentAudit>();
+        var now = DateTime.UtcNow;
+
+        void CheckAndAudit(string fieldName, string? oldVal, string? newVal)
+        {
+            if (oldVal != newVal)
+            {
+                audits.Add(new DocumentAudit
+                {
+                    DocumentId = documentId,
+                    FieldName = fieldName,
+                    OldValue = oldVal,
+                    NewValue = newVal,
+                    ChangedAt = now
+                });
+            }
+        }
+
+        // Direction is NOT editable after creation — exclude from diff
+        CheckAndAudit("Sender", existing.Sender, dto.Sender);
+        CheckAndAudit("Recipient", existing.Recipient, dto.Recipient);
+        CheckAndAudit("Subject", existing.Subject, dto.Subject);
+        CheckAndAudit("OriginalFileNumber", existing.OriginalFileNumber, dto.OriginalFileNumber);
+        CheckAndAudit("Remarks", existing.Remarks, dto.Remarks);
+        CheckAndAudit("DocumentDate",
+            existing.DocumentDate.ToString("yyyy-MM-dd"),
+            dto.DocumentDate.ToString("yyyy-MM-dd"));
+
+        if (audits.Count == 0)
+        {
+            // No changes — don't write to DB
+            return;
+        }
+
+        // Apply changes to existing entity
+        existing.Sender = dto.Sender;
+        existing.Recipient = dto.Recipient;
+        existing.Subject = dto.Subject;
+        existing.OriginalFileNumber = dto.OriginalFileNumber;
+        existing.Remarks = dto.Remarks;
+        existing.DocumentDate = dto.DocumentDate;
+        existing.UpdatedAt = now;
+        // Direction and TrackingId are NOT updated — immutable after creation
+
+        await using var transaction = await _db.BeginTransactionAsync();
+        try
+        {
+            await _repository.UpdateAsync(existing, transaction);
+            foreach (var audit in audits)
+            {
+                await _repository.InsertAuditEntryAsync(audit, transaction);
+            }
+            await transaction.CommitAsync();
         }
         catch
         {

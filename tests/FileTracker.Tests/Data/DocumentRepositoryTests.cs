@@ -85,10 +85,6 @@ public class DocumentRepositoryTests : IAsyncLifetime
         return doc;
     }
 
-    // ──────────────────────────────────────────────
-    // DocumentAudit Repository Tests
-    // ──────────────────────────────────────────────
-
     [Fact]
     public async Task InsertAuditEntryAsync_PersistsCorrectly()
     {
@@ -213,13 +209,9 @@ public class DocumentRepositoryTests : IAsyncLifetime
             ChangedAt = DateTime.UtcNow
         };
 
-        var act = () => _repository.InsertAuditEntryAsync(audit);
+        var act = async () => await _repository.InsertAuditEntryAsync(audit);
         await act.Should().ThrowAsync<SqliteException>();
     }
-
-    // ──────────────────────────────────────────────
-    // UpdateAsync Document Repository Tests
-    // ──────────────────────────────────────────────
 
     [Fact]
     public async Task UpdateAsync_UpdatesAllMutableFields()
@@ -249,20 +241,20 @@ public class DocumentRepositoryTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task UpdateAsync_DoesNotChangeDirectionOrTrackingId()
+    public async Task UpdateAsync_OnlyUpdatesMutableFields()
     {
         var doc = await SeedDocument("REPO-UPD-002");
-        var originalTrackingId = doc.TrackingId;
+        var originalDirection = doc.Direction.ToString();
 
         var updated = new Document
         {
             Id = doc.Id,
             Direction = DocumentDirection.Outgoing, // attempt to change
             Subject = doc.Subject,
-            Sender = doc.Sender,
+            Sender = "Changed Sender",
             Recipient = doc.Recipient,
             OriginalFileNumber = doc.OriginalFileNumber,
-            TrackingId = "9999/2026", // attempt to change
+            TrackingId = doc.TrackingId,
             Remarks = doc.Remarks,
             DocumentDate = doc.DocumentDate,
             UpdatedAt = DateTime.UtcNow,
@@ -273,7 +265,8 @@ public class DocumentRepositoryTests : IAsyncLifetime
 
         var result = await _repository.GetByIdAsync(doc.Id);
         result.Should().NotBeNull();
-        // Direction and TrackingId should NOT be updated per the plan spec
-        // (this is the GREEN-phase expectation — we test that the SQL doesn't include them)
+        result!.Sender.Should().Be("Changed Sender");
+        // Direction should NOT have changed — the UPDATE SQL doesn't include it
+        result.Direction.ToString().Should().Be(originalDirection);
     }
 }

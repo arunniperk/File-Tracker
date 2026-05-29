@@ -70,10 +70,6 @@ public class DocumentServiceTests : IAsyncLifetime
         return ValueTask.CompletedTask;
     }
 
-    // ──────────────────────────────────────────────
-    // Existing registration tests (REG-01, REG-02, REG-03)
-    // ──────────────────────────────────────────────
-
     [Fact]
     public async Task RegisterAsync_WithValidIncomingDto_ReturnsDocumentWithIdAndDirection()
     {
@@ -224,10 +220,6 @@ public class DocumentServiceTests : IAsyncLifetime
 
         result.Direction.Should().Be(DocumentDirection.Incoming);
     }
-
-    // ──────────────────────────────────────────────
-    // Tracking ID tests (Task 1 — RED phase)
-    // ──────────────────────────────────────────────
 
     [Fact]
     public async Task RegisterAsync_GeneratesTrackingId_FormatD4SlashYear()
@@ -388,7 +380,7 @@ public class DocumentServiceTests : IAsyncLifetime
     }
 
     // ──────────────────────────────────────────────
-    // REG-05: Audit trail tests (RED phase — must fail)
+    // REG-05: Audit trail tests (GREEN phase)
     // ──────────────────────────────────────────────
 
     [Fact]
@@ -438,12 +430,9 @@ public class DocumentServiceTests : IAsyncLifetime
         await _service.UpdateAsync(doc.Id, updateDto);
 
         var auditEntries = await _repository.GetAuditEntriesAsync(doc.Id);
-        auditEntries.Should().ContainSingle(a => a.FieldName == "Subject")
-            .Which.Should().Satisfy(a =>
-            {
-                a.OldValue.Should().Be("Original Subject");
-                a.NewValue.Should().Be("Updated Subject");
-            });
+        var subjectAudit = auditEntries.Should().ContainSingle(a => a.FieldName == "Subject").Which;
+        subjectAudit.OldValue.Should().Be("Original Subject");
+        subjectAudit.NewValue.Should().Be("Updated Subject");
     }
 
     [Fact]
@@ -471,12 +460,9 @@ public class DocumentServiceTests : IAsyncLifetime
         await _service.UpdateAsync(doc.Id, updateDto);
 
         var auditEntries = await _repository.GetAuditEntriesAsync(doc.Id);
-        auditEntries.Should().ContainSingle(a => a.FieldName == "OriginalFileNumber")
-            .Which.Should().Satisfy(a =>
-            {
-                a.OldValue.Should().Be("AUD-FN-001");
-                a.NewValue.Should().Be("AUD-FN-002");
-            });
+        var fnAudit = auditEntries.Should().ContainSingle(a => a.FieldName == "OriginalFileNumber").Which;
+        fnAudit.OldValue.Should().Be("AUD-FN-001");
+        fnAudit.NewValue.Should().Be("AUD-FN-002");
     }
 
     [Fact]
@@ -504,12 +490,9 @@ public class DocumentServiceTests : IAsyncLifetime
         await _service.UpdateAsync(doc.Id, updateDto);
 
         var auditEntries = await _repository.GetAuditEntriesAsync(doc.Id);
-        auditEntries.Should().ContainSingle(a => a.FieldName == "Sender")
-            .Which.Should().Satisfy(a =>
-            {
-                a.OldValue.Should().Be("Original Sender");
-                a.NewValue.Should().Be("Updated Sender");
-            });
+        var sndAudit = auditEntries.Should().ContainSingle(a => a.FieldName == "Sender").Which;
+        sndAudit.OldValue.Should().Be("Original Sender");
+        sndAudit.NewValue.Should().Be("Updated Sender");
     }
 
     [Fact]
@@ -537,12 +520,9 @@ public class DocumentServiceTests : IAsyncLifetime
         await _service.UpdateAsync(doc.Id, updateDto);
 
         var auditEntries = await _repository.GetAuditEntriesAsync(doc.Id);
-        auditEntries.Should().ContainSingle(a => a.FieldName == "Recipient")
-            .Which.Should().Satisfy(a =>
-            {
-                a.OldValue.Should().Be("Original Recipient");
-                a.NewValue.Should().Be("Updated Recipient");
-            });
+        var rcpAudit = auditEntries.Should().ContainSingle(a => a.FieldName == "Recipient").Which;
+        rcpAudit.OldValue.Should().Be("Original Recipient");
+        rcpAudit.NewValue.Should().Be("Updated Recipient");
     }
 
     [Fact]
@@ -571,12 +551,9 @@ public class DocumentServiceTests : IAsyncLifetime
         await _service.UpdateAsync(doc.Id, updateDto);
 
         var auditEntries = await _repository.GetAuditEntriesAsync(doc.Id);
-        auditEntries.Should().ContainSingle(a => a.FieldName == "Remarks")
-            .Which.Should().Satisfy(a =>
-            {
-                a.OldValue.Should().Be("Original remarks");
-                a.NewValue.Should().Be("Updated remarks");
-            });
+        var rmkAudit = auditEntries.Should().ContainSingle(a => a.FieldName == "Remarks").Which;
+        rmkAudit.OldValue.Should().Be("Original remarks");
+        rmkAudit.NewValue.Should().Be("Updated remarks");
     }
 
     [Fact]
@@ -606,12 +583,9 @@ public class DocumentServiceTests : IAsyncLifetime
         await _service.UpdateAsync(doc.Id, updateDto);
 
         var auditEntries = await _repository.GetAuditEntriesAsync(doc.Id);
-        auditEntries.Should().ContainSingle(a => a.FieldName == "DocumentDate")
-            .Which.Should().Satisfy(a =>
-            {
-                a.OldValue.Should().Be("2026-01-15");
-                a.NewValue.Should().Be("2026-06-01");
-            });
+        var dateAudit = auditEntries.Should().ContainSingle(a => a.FieldName == "DocumentDate").Which;
+        dateAudit.OldValue.Should().Be("2026-01-15");
+        dateAudit.NewValue.Should().Be("2026-06-01");
     }
 
     [Fact]
@@ -782,7 +756,7 @@ public class DocumentServiceTests : IAsyncLifetime
         // Try to update with same data but different direction
         var updateDto = new RegisterDocumentDto
         {
-            Direction = DocumentDirection.Outgoing, // direction changed
+            Direction = DocumentDirection.Outgoing, // direction changed in DTO — should be ignored
             Sender = doc.Sender,
             Subject = doc.Subject,
             DocumentDate = doc.DocumentDate,
@@ -854,7 +828,8 @@ public class DocumentServiceTests : IAsyncLifetime
         await _service.UpdateAsync(doc.Id, updateDto);
 
         var auditEntries = await _repository.GetAuditEntriesAsync(doc.Id);
-        auditEntries.Should().ContainSingle(a => a.FieldName == "Subject"
+        var subjectAudits = auditEntries.Where(a => a.FieldName == "Subject"
             && a.OldValue == originalSubject && a.NewValue == "Changed Subject");
+        subjectAudits.Should().HaveCount(1);
     }
 }
