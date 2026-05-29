@@ -2,78 +2,86 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:converters="clr-namespace:FileTracker.App.Converters"
-        Title="Manage Positions" Height="550" Width="700"
-        WindowStartupLocation="CenterOwner"
-        ResizeMode="CanResizeWithGrip">
-
+        Title="Manage Positions" Height="520" Width="650"
+        WindowStartupLocation="CenterOwner" ResizeMode="CanResizeWithGrip"
+        Background="{StaticResource BackgroundBrush}"
+        FontFamily="{StaticResource BodyFont}">
     <Window.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibility" />
         <converters:BoolToStatusConverter x:Key="BoolToStatus" />
     </Window.Resources>
 
-    <Grid Margin="10">
+    <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- Row 0: Add Position Form -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-            <TextBlock Text="New Position:" VerticalAlignment="Center" Margin="0,0,8,0" />
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{StaticResource PrimaryBrush}" CornerRadius="6"
+                Padding="14,10" Margin="0,0,0,12">
+            <TextBlock Text="Officer Positions" FontSize="16" FontWeight="Bold"
+                       Foreground="White" />
+        </Border>
+
+        <!-- Add Form -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
+            <Button Content="+ Add Position" Style="{StaticResource PrimaryButton}"
+                    Command="{Binding AddPositionCommand}" Margin="0,0,8,0" MinWidth="110" />
             <TextBox Text="{Binding NewPositionName, UpdateSourceTrigger=PropertyChanged}"
-                     Width="200" Height="24" VerticalContentAlignment="Center" />
-            <Button Content="Add Position" Command="{Binding AddPositionCommand}"
-                    Margin="8,0,0,0" Padding="10,4" />
-            <TextBlock Text="{Binding ErrorMessage}" Foreground="Red"
-                       VerticalAlignment="Center" Margin="12,0,0,0" />
+                     Width="220" VerticalAlignment="Center" />
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource DangerBrush}"
+                       VerticalAlignment="Center" Margin="12,0,0,0" FontWeight="SemiBold" />
         </StackPanel>
 
-        <!-- Row 1: Rename Section (visible when editing) -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10"
-                    Visibility="{Binding IsEditingName, Converter={StaticResource BoolToVisibility}}">
-            <TextBlock Text="Rename:" VerticalAlignment="Center" Margin="0,0,8,0" />
-            <TextBox Text="{Binding RenameText, UpdateSourceTrigger=PropertyChanged}"
-                     Width="200" Height="24" VerticalContentAlignment="Center" />
-            <Button Content="Save" Command="{Binding SaveRenameCommand}"
-                    Margin="8,0,4,0" Padding="10,4" />
-            <Button Content="Cancel" Command="{Binding CancelRenameCommand}"
-                    Padding="10,4" />
-        </StackPanel>
+        <!-- Rename Bar -->
+        <Border Grid.Row="2" Background="{StaticResource SurfaceAltBrush}" CornerRadius="4"
+                Padding="8" Margin="0,0,0,8"
+                Visibility="{Binding IsEditingName, Converter={StaticResource BoolToVisibility}}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Rename:" VerticalAlignment="Center" Margin="0,0,8,0"
+                           FontWeight="SemiBold" FontSize="12" />
+                <TextBox Text="{Binding RenameText, UpdateSourceTrigger=PropertyChanged}"
+                         Width="200" VerticalAlignment="Center" />
+                <Button Content="Save" Style="{StaticResource PrimaryButton}"
+                        Command="{Binding SaveRenameCommand}" Margin="8,0,4,0"
+                        FontSize="12" Padding="8,4" />
+                <Button Content="Cancel" Style="{StaticResource SecondaryButton}"
+                        Command="{Binding CancelRenameCommand}" FontSize="12" Padding="8,4" />
+            </StackPanel>
+        </Border>
 
-        <!-- Row 2: DataGrid -->
-        <DataGrid Grid.Row="2"
-                  ItemsSource="{Binding Positions}"
+        <!-- DataGrid -->
+        <DataGrid Grid.Row="3" ItemsSource="{Binding Positions}"
                   SelectedItem="{Binding SelectedPosition}"
-                  AutoGenerateColumns="False"
-                  IsReadOnly="True"
-                  HeadersVisibility="Column"
+                  AutoGenerateColumns="False" IsReadOnly="True"
                   SelectionMode="Single">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Order" Binding="{Binding DisplayOrder}"
-                                    Width="60" />
-                <DataGridTextColumn Header="Name" Binding="{Binding Name}"
-                                    Width="180" />
-                <DataGridTextColumn Header="Status"
-                                    Binding="{Binding IsActive, Converter={StaticResource BoolToStatus}}"
-                                    Width="80" />
-                <DataGridTemplateColumn Header="Actions" Width="280">
+                <DataGridTextColumn Header="Order" Binding="{Binding DisplayOrder}" Width="55" />
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="170" />
+                <DataGridTextColumn Header="Status" Binding="{Binding IsActive, Converter={StaticResource BoolToStatus}}" Width="80" />
+                <DataGridTemplateColumn Header="Actions" Width="*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <Button Content="Rename" Padding="6,2" Margin="0,0,4,0"
+                                <Button Content="Rename" Style="{StaticResource SecondaryButton}"
+                                        FontSize="11" Padding="6,3" Margin="0,0,4,0"
                                         Command="{Binding DataContext.StartRenameCommand,
                                             RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                         CommandParameter="{Binding}" />
-                                <Button Content="▲ Up" Padding="6,2" Margin="0,0,4,0"
+                                <Button Content="Up" Style="{StaticResource SecondaryButton}"
+                                        FontSize="11" Padding="6,3" Margin="0,0,4,0"
                                         Command="{Binding DataContext.MoveUpCommand,
                                             RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                         CommandParameter="{Binding}" />
-                                <Button Content="▼ Down" Padding="6,2" Margin="0,0,4,0"
+                                <Button Content="Down" Style="{StaticResource SecondaryButton}"
+                                        FontSize="11" Padding="6,3" Margin="0,0,4,0"
                                         Command="{Binding DataContext.MoveDownCommand,
                                             RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                         CommandParameter="{Binding}" />
-                                <Button Content="Deactivate" Padding="6,2"
+                                <Button Content="Deactivate" Style="{StaticResource SecondaryButton}"
+                                        FontSize="11" Padding="6,3"
                                         Command="{Binding DataContext.DeactivateCommand,
                                             RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                         CommandParameter="{Binding}"

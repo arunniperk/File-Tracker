@@ -7,172 +7,217 @@
         xmlns:views="clr-namespace:FileTracker.App.Views"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
-        Title="File Tracker — IIT Dharwad" Height="750" Width="1050">
-    <TabControl x:Name="MainTabs"
-                 SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}">
-        <!-- TAB 0: Dashboard (default) -->
-        <TabItem Header="Dashboard">
-            <views:DashboardView DataContext="{Binding DashboardVm}" />
-        </TabItem>
+        Title="File Tracker — IIT Dharwad Registrar Office"
+        Height="780" Width="1200"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundBrush}"
+        FontFamily="{StaticResource BodyFont}">
 
-        <!-- TAB 1: Documents -->
-        <TabItem Header="Documents">
-            <Grid Margin="8">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />  <!-- Search Bar -->
-                    <RowDefinition Height="Auto" />  <!-- Register Form -->
-                    <RowDefinition Height="*" />     <!-- DataGrid + Pagination -->
-                </Grid.RowDefinitions>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
 
-                <!-- Row 0: Search Bar -->
-                <GroupBox Header="Search Documents" Grid.Row="0" Margin="0,0,0,4">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="120" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="120" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="140" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+        <!-- ═══════════════════════ HEADER ═══════════════════ -->
+        <Border Grid.Row="0" Background="{StaticResource PrimaryBrush}" Padding="20,16">
+            <Grid>
+                <StackPanel HorizontalAlignment="Left">
+                    <TextBlock Text="IIT DHARWAD" FontSize="11" FontWeight="Bold"
+                               Foreground="#5A7599"
+                               FontFamily="{StaticResource HeadingFont}" />
+                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                        <TextBlock Text="FILE TRACKER" FontSize="22" FontWeight="Bold"
+                                   Foreground="White" FontFamily="{StaticResource HeadingFont}" />
+                        <Border Background="{StaticResource AccentBrush}" CornerRadius="3"
+                                Padding="6,2" Margin="12,6,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="REGISTRAR OFFICE" FontSize="9" FontWeight="Bold"
+                                       Foreground="{StaticResource PrimaryColor}" />
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                            VerticalAlignment="Center">
+                    <Button Content="Backup" Style="{StaticResource AccentButton}"
+                            Command="{Binding BackupCommand}" Margin="0,0,8,0" />
+                    <Button Content="Restore" Style="{StaticResource SecondaryButton}"
+                            Command="{Binding RestoreCommand}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ═══════════════════════ TABS ═══════════════════════ -->
+        <TabControl Grid.Row="1" x:Name="MainTabs"
+                     SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}">
+            <TabItem Header="Dashboard">
+                <views:DashboardView DataContext="{Binding DashboardVm}" />
+            </TabItem>
+            <TabItem Header="Documents">
+                <Grid Background="{StaticResource BackgroundBrush}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Search Bar -->
+                    <Border Grid.Row="0" Background="{StaticResource SurfaceBrush}"
+                            BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1"
+                            Padding="16,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="120" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="140" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="140" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="File Number"
+                                       VerticalAlignment="Center" Margin="0,0,8,0"
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" />
+                            <TextBox Grid.Row="1" Grid.Column="0"
+                                     Text="{Binding SearchVm.SearchFileNumber, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="Tracking ID"
+                                       VerticalAlignment="Center" Margin="0,0,8,0"
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" />
+                            <TextBox Grid.Row="1" Grid.Column="2"
+                                     Text="{Binding SearchVm.SearchTrackingId, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <TextBlock Grid.Row="0" Grid.Column="4" Text="Subject"
+                                       VerticalAlignment="Center" Margin="0,0,8,0"
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" />
+                            <TextBox Grid.Row="1" Grid.Column="4"
+                                     Text="{Binding SearchVm.SearchSubject, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <TextBlock Grid.Row="0" Grid.Column="6" Text="Sender / Recipient"
+                                       VerticalAlignment="Center" Margin="0,0,8,0"
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" />
+                            <TextBox Grid.Row="1" Grid.Column="6"
+                                     Text="{Binding SearchVm.SearchSenderRecipient, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <StackPanel Grid.Row="1" Grid.Column="8" Orientation="Horizontal">
+                                <Button Content="Search" Style="{StaticResource PrimaryButton}"
+                                        Command="{Binding SearchVm.SearchCommand}"
+                                        Width="90" IsDefault="True" Margin="0,0,8,0" />
+                                <Button Content="Clear" Style="{StaticResource SecondaryButton}"
+                                        Command="{Binding SearchVm.ClearSearchCommand}"
+                                        Width="60" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Registration Form -->
+                    <views:RegisterDocumentView Grid.Row="1"
+                                                 x:Name="RegisterDocumentViewControl" />
+
+                    <!-- DataGrid + Pagination -->
+                    <Grid Grid.Row="2">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
-                        <!-- Row 0: File#, TrackingID, Subject, Sender/Recipient -->
-                        <TextBlock Text="File #:" Grid.Row="0" Grid.Column="0"
-                                   VerticalAlignment="Center" Margin="0,0,4,0" />
-                        <TextBox Grid.Row="0" Grid.Column="1"
-                                 Text="{Binding SearchVm.SearchFileNumber, UpdateSourceTrigger=PropertyChanged}" />
+                        <DataGrid Grid.Row="0"
+                                  ItemsSource="{Binding SearchVm.SearchResults}"
+                                  SelectedItem="{Binding SelectedDocument}"
+                                  AutoGenerateColumns="False" IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Tracking ID" Binding="{Binding TrackingId}" Width="100" />
+                                <DataGridTextColumn Header="Dir" Binding="{Binding Direction}" Width="55" />
+                                <DataGridTextColumn Header="File Number" Binding="{Binding OriginalFileNumber}" Width="120" />
+                                <DataGridTextColumn Header="Subject" Binding="{Binding Subject}" Width="200" />
+                                <DataGridTextColumn Header="Date" Binding="{Binding DocumentDate, StringFormat={}{0:dd-MMM-yyyy}}" Width="100" />
+                                <DataGridTextColumn Header="Sender / Recipient" Binding="{Binding Sender}" Width="150" />
+                                <DataGridTextColumn Header="Current Location" Binding="{Binding CurrentLocation}" Width="140" />
+                                <DataGridTextColumn Header="Remarks" Binding="{Binding Remarks}" Width="*" />
+                                <DataGridTemplateColumn Width="190">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Style="{StaticResource PrimaryButton}"
+                                                        FontSize="11" Padding="8,4" Margin="0,0,4,0"
+                                                        Command="{Binding DataContext.RecordMovementCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                        CommandParameter="{Binding}">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="->" FontSize="12" Margin="0,0,4,0" />
+                                                        <TextBlock Text="Move" />
+                                                    </StackPanel>
+                                                </Button>
+                                                <Button Style="{StaticResource SecondaryButton}"
+                                                        Content="View" FontSize="11" Padding="8,4"
+                                                        Margin="0,0,4,0"
+                                                        Command="{Binding DataContext.OpenDocumentDetailCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                        CommandParameter="{Binding}" />
+                                                <Button Style="{StaticResource SecondaryButton}"
+                                                        Content="Edit" FontSize="11" Padding="8,4"
+                                                        Command="{Binding DataContext.EditDocumentCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                        CommandParameter="{Binding}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
 
-                        <TextBlock Text="Tracking ID:" Grid.Row="0" Grid.Column="2"
-                                   VerticalAlignment="Center" Margin="8,0,4,0" />
-                        <TextBox Grid.Row="0" Grid.Column="3"
-                                 Text="{Binding SearchVm.SearchTrackingId, UpdateSourceTrigger=PropertyChanged}" />
-
-                        <TextBlock Text="Subject:" Grid.Row="0" Grid.Column="4"
-                                   VerticalAlignment="Center" Margin="8,0,4,0" />
-                        <TextBox Grid.Row="0" Grid.Column="5"
-                                 Text="{Binding SearchVm.SearchSubject, UpdateSourceTrigger=PropertyChanged}" />
-
-                        <TextBlock Text="Sender/Recipient:" Grid.Row="0" Grid.Column="6"
-                                   VerticalAlignment="Center" Margin="8,0,4,0" />
-                        <TextBox Grid.Row="0" Grid.Column="7"
-                                 Text="{Binding SearchVm.SearchSenderRecipient, UpdateSourceTrigger=PropertyChanged}" />
-
-                        <!-- Row 1: FromDate, ToDate, Search, Clear, Positions, Page indicator -->
-                        <TextBlock Text="From:" Grid.Row="1" Grid.Column="0"
-                                   VerticalAlignment="Center" Margin="0,4,4,0" />
-                        <DatePicker Grid.Row="1" Grid.Column="1"
-                                    SelectedDate="{Binding SearchVm.SearchFromDate}" Margin="0,4,0,0" />
-
-                        <TextBlock Text="To:" Grid.Row="1" Grid.Column="2"
-                                   VerticalAlignment="Center" Margin="8,4,4,0" />
-                        <DatePicker Grid.Row="1" Grid.Column="3"
-                                    SelectedDate="{Binding SearchVm.SearchToDate}" Margin="0,4,0,0" />
-
-                        <Button Grid.Row="1" Grid.Column="4" Content="Search"
-                                Command="{Binding SearchVm.SearchCommand}"
-                                Width="70" Margin="8,4,4,0" IsDefault="True" />
-
-                        <Button Grid.Row="1" Grid.Column="5" Content="Clear"
-                                Command="{Binding SearchVm.ClearSearchCommand}"
-                                Width="50" Margin="0,4,0,0" />
-
-                        <Button Grid.Row="1" Grid.Column="6" Content="Reports"
-                                Command="{Binding OpenReportWindowCommand}"
-                                Width="70" Margin="8,4,4,0" />
-
-                        <Button Grid.Row="1" Grid.Column="7" Content="💾 Backup"
-                                Command="{Binding BackupCommand}"
-                                Width="75" Margin="8,4,4,0" />
-
-                        <Button Grid.Row="1" Grid.Column="8" Content="📂 Restore"
-                                Command="{Binding RestoreCommand}"
-                                Width="75" Margin="0,4,4,0" />
-
-                        <Button Grid.Row="1" Grid.Column="9" Content="⚙ Positions"
-                                Command="{Binding OpenManagePositionsCommand}"
-                                Width="80" Margin="8,4,4,0" />
-
-                        <TextBlock Grid.Row="1" Grid.Column="10"
-                                   Text="{Binding SearchVm.PageIndicator}"
-                                   VerticalAlignment="Center" Margin="12,4,0,0"
-                                   FontWeight="SemiBold" />
+                        <!-- Pagination -->
+                        <Border Grid.Row="1" Background="{StaticResource SurfaceBrush}"
+                                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0"
+                                Padding="12,8">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Content="Previous" Style="{StaticResource SecondaryButton}"
+                                        FontSize="12" Width="90"
+                                        Command="{Binding SearchVm.PreviousPageCommand}"
+                                        IsEnabled="{Binding SearchVm.HasPreviousPage}" />
+                                <Border Background="{StaticResource SurfaceAltBrush}"
+                                        CornerRadius="4" Padding="16,8" Margin="12,0"
+                                        MinWidth="160">
+                                    <TextBlock Text="{Binding SearchVm.PageIndicator}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               FontSize="13" FontWeight="SemiBold"
+                                               Foreground="{StaticResource TextPrimaryBrush}" />
+                                </Border>
+                                <Button Content="Next" Style="{StaticResource SecondaryButton}"
+                                        FontSize="12" Width="90"
+                                        Command="{Binding SearchVm.NextPageCommand}"
+                                        IsEnabled="{Binding SearchVm.HasNextPage}" />
+                            </StackPanel>
+                        </Border>
                     </Grid>
-                </GroupBox>
-
-                <!-- Row 1: Registration Form -->
-                <views:RegisterDocumentView x:Name="RegisterDocumentViewControl"
-                                             Grid.Row="1" />
-
-                <!-- Row 2: DataGrid + Pagination -->
-                <Grid Grid.Row="2">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-
-                    <!-- DataGrid -->
-                    <DataGrid Grid.Row="0" Margin="8,4,8,4"
-                              ItemsSource="{Binding SearchVm.SearchResults}"
-                              SelectedItem="{Binding SelectedDocument}"
-                              AutoGenerateColumns="False"
-                              IsReadOnly="True"
-                              HeadersVisibility="Column">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="40" />
-                            <DataGridTextColumn Header="Tracking ID" Binding="{Binding TrackingId}" Width="90" />
-                            <DataGridTextColumn Header="Direction" Binding="{Binding Direction}" Width="80" />
-                            <DataGridTextColumn Header="File Number" Binding="{Binding OriginalFileNumber}" Width="120" />
-                            <DataGridTextColumn Header="Subject" Binding="{Binding Subject}" Width="180" />
-                            <DataGridTextColumn Header="Date" Binding="{Binding DocumentDate, StringFormat={}{0:dd-MMM-yyyy}}" Width="100" />
-                            <DataGridTextColumn Header="Sender" Binding="{Binding Sender}" Width="130" />
-                            <DataGridTextColumn Header="Current Location" Binding="{Binding CurrentLocation}" Width="140" />
-                            <DataGridTextColumn Header="Remarks" Binding="{Binding Remarks}" Width="*" />
-                            <DataGridTemplateColumn Width="140">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Button Content="Move" Padding="4,2" Margin="0,0,4,0"
-                                                    Command="{Binding DataContext.RecordMovementCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                    CommandParameter="{Binding}" />
-                                            <Button Content="View" Padding="4,2" Margin="0,0,4,0"
-                                                    Command="{Binding DataContext.OpenDocumentDetailCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                    CommandParameter="{Binding}" />
-                                            <Button Content="Edit" Padding="4,2"
-                                                    Command="{Binding DataContext.EditDocumentCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                    CommandParameter="{Binding}" />
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                        </DataGrid.Columns>
-                    </DataGrid>
-
-                    <!-- Pagination bar -->
-                    <StackPanel Grid.Row="1" Orientation="Horizontal"
-                                HorizontalAlignment="Center" Margin="0,4,0,0">
-                        <Button Content="◀ Previous"
-                                Command="{Binding SearchVm.PreviousPageCommand}"
-                                IsEnabled="{Binding SearchVm.HasPreviousPage}"
-                                Margin="0,0,8,0" Width="80" />
-                        <TextBlock Text="{Binding SearchVm.PageIndicator}"
-                                   VerticalAlignment="Center"
-                                   Margin="8,0" Width="200" TextAlignment="Center" />
-                        <Button Content="Next ▶"
-                                Command="{Binding SearchVm.NextPageCommand}"
-                                IsEnabled="{Binding SearchVm.HasNextPage}"
-                                Margin="8,0,0,0" Width="80" />
-                    </StackPanel>
                 </Grid>
+            </TabItem>
+        </TabControl>
+
+        <!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+        <Border Grid.Row="2" Background="{StaticResource PrimaryBrush}" Padding="12,6">
+            <Grid>
+                <TextBlock Text="IIT Dharwad • File Tracker v1.0"
+                           Foreground="#5A7599" FontSize="11"
+                           HorizontalAlignment="Left" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Manage Positions" Style="{StaticResource SecondaryButton}"
+                            Command="{Binding OpenManagePositionsCommand}"
+                            FontSize="11" Padding="8,4" Foreground="#AABBCC"
+                            Background="#1A3350" BorderThickness="0"
+                            Margin="0,0,8,0" />
+                    <Button Content="Reports" Style="{StaticResource SecondaryButton}"
+                            Command="{Binding OpenReportWindowCommand}"
+                            FontSize="11" Padding="8,4" Foreground="#AABBCC"
+                            Background="#1A3350" BorderThickness="0" />
+                </StackPanel>
             </Grid>
-        </TabItem>
-    </TabControl>
+        </Border>
+    </Grid>
 </Window>

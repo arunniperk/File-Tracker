@@ -5,101 +5,166 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:converters="clr-namespace:FileTracker.App.Converters"
              mc:Ignorable="d"
-             d:DesignHeight="500" d:DesignWidth="500">
+             d:DesignHeight="400" d:DesignWidth="600">
     <UserControl.Resources>
-        <converters:BoolInvertConverter x:Key="InverseBoolConverter" />
+        <converters:BoolInvertConverter x:Key="BoolInvertConverter" />
         <converters:FilePathToFileNameConverter x:Key="FilePathToFileNameConverter" />
     </UserControl.Resources>
-    <Border Padding="16" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4" Margin="8">
-        <StackPanel>
-            <!-- Mode indicator (D-08: detail panel separate from registration) -->
-            <TextBlock Text="{Binding ModeIndicator}" FontSize="18" FontWeight="SemiBold"
-                       Margin="0,0,0,16" />
 
-            <!-- Incoming / Outgoing Toggle (D-04) — disabled in edit mode -->
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,12"
-                        IsEnabled="{Binding IsEditMode, Converter={StaticResource InverseBoolConverter}}">
-                <RadioButton Content="Incoming" IsChecked="{Binding IsIncoming}"
-                             GroupName="Direction" Margin="0,0,16,0" />
-                <RadioButton Content="Outgoing"
-                             IsChecked="{Binding IsIncoming, Converter={StaticResource BoolInvertConverter}}"
-                             GroupName="Direction" Margin="0,0,0,0" />
+    <Border Background="{StaticResource SurfaceBrush}"
+            BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1"
+            Padding="20,16">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Mode header -->
+            <Grid Grid.Row="0" Margin="0,0,0,16">
+                <Border Background="{StaticResource PrimaryBrush}" CornerRadius="4"
+                        Padding="10,6" HorizontalAlignment="Left">
+                    <TextBlock Text="{Binding ModeIndicator}" FontSize="14" FontWeight="Bold"
+                               Foreground="White" />
+                </Border>
+                <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center"
+                           FontSize="12" Foreground="{StaticResource TextMutedBrush}">
+                    <Run Text="Auto tracking ID: " />
+                    <Run Text="{Binding ModeIndicator}" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}" />
+                </TextBlock>
+            </Grid>
+
+            <!-- Direction Toggle -->
+            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16"
+                        IsEnabled="{Binding IsEditMode, Converter={StaticResource BoolInvertConverter}}">
+                <Border CornerRadius="6" Background="{StaticResource SurfaceAltBrush}" Padding="4">
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton x:Name="IncomingRadio" Content="Incoming"
+                                     IsChecked="{Binding IsIncoming}"
+                                     GroupName="Direction" Margin="0" Padding="12,6" />
+                        <RadioButton x:Name="OutgoingRadio" Content="Outgoing"
+                                     IsChecked="{Binding IsIncoming, Converter={StaticResource BoolInvertConverter}}"
+                                     GroupName="Direction" Margin="4,0,0,0" Padding="12,6" />
+                    </StackPanel>
+                </Border>
             </StackPanel>
 
-            <!-- Sender / Recipient field (label swaps based on IsIncoming) -->
-            <TextBlock Text="Sender"
-                       Visibility="{Binding IsIncoming, Converter={StaticResource BoolToVisibilityConverter}}"
-                       Margin="0,4,0,2" />
-            <TextBlock Text="Recipient"
-                       Visibility="{Binding IsIncoming, Converter={StaticResource BoolInvertVisibilityConverter}}"
-                       Margin="0,4,0,2" />
-            <TextBox Text="{Binding SenderOrRecipient, UpdateSourceTrigger=PropertyChanged,
-                                   ValidatesOnDataErrors=True, NotifyOnValidationError=True}"
-                     Margin="0,0,0,8" Padding="4" />
+            <!-- Fields in 2-column grid -->
+            <Grid Grid.Row="2" Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
-            <!-- Subject -->
-            <TextBlock Text="Subject" Margin="0,4,0,2" />
-            <TextBox Text="{Binding Subject, UpdateSourceTrigger=PropertyChanged,
-                                   ValidatesOnDataErrors=True, NotifyOnValidationError=True}"
-                     Margin="0,0,0,8" Padding="4" />
+                <!-- Left column: Sender/Recipient, Subject -->
+                <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                    <TextBlock Text="Sender" FontSize="12" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               Visibility="{Binding IsIncoming, Converter={StaticResource BoolToVisibilityConverter}}"
+                               Margin="0,8,0,4" />
+                    <TextBlock Text="Recipient" FontSize="12" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               Visibility="{Binding IsIncoming, Converter={StaticResource BoolInvertVisibilityConverter}}"
+                               Margin="0,8,0,4" />
+                    <TextBox Text="{Binding SenderOrRecipient, UpdateSourceTrigger=PropertyChanged,
+                                            ValidatesOnDataErrors=True, NotifyOnValidationError=True}" />
 
-            <!-- Date -->
-            <TextBlock Text="Date" Margin="0,4,0,2" />
-            <DatePicker SelectedDate="{Binding DocumentDate}"
-                        Margin="0,0,0,8" />
+                    <TextBlock Text="Date" FontSize="12" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               Margin="0,12,0,4" />
+                    <DatePicker SelectedDate="{Binding DocumentDate}" />
+                </StackPanel>
 
-            <!-- File Number -->
-            <TextBlock Text="File Number" Margin="0,4,0,2" />
-            <TextBox Text="{Binding OriginalFileNumber, UpdateSourceTrigger=PropertyChanged,
-                                   ValidatesOnDataErrors=True, NotifyOnValidationError=True}"
-                     Margin="0,0,0,8" Padding="4" />
+                <!-- Right column: Subject, File Number -->
+                <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                    <TextBlock Text="Subject" FontSize="12" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               Margin="0,8,0,4" />
+                    <TextBox Text="{Binding Subject, UpdateSourceTrigger=PropertyChanged,
+                                            ValidatesOnDataErrors=True, NotifyOnValidationError=True}" />
+
+                    <TextBlock Text="File Number" FontSize="12" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               Margin="0,12,0,4" />
+                    <TextBox Text="{Binding OriginalFileNumber, UpdateSourceTrigger=PropertyChanged,
+                                            ValidatesOnDataErrors=True, NotifyOnValidationError=True}" />
+                </StackPanel>
+            </Grid>
 
             <!-- Remarks -->
-            <TextBlock Text="Remarks" Margin="0,4,0,2" />
-            <TextBox Text="{Binding Remarks, UpdateSourceTrigger=PropertyChanged}"
-                     Margin="0,0,0,8" Padding="4"
-                     TextWrapping="Wrap" AcceptsReturn="True"
-                     MinHeight="60" />
+            <TextBlock Grid.Row="3" Text="Remarks" FontSize="12" FontWeight="SemiBold"
+                       Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,4" />
+            <TextBox Grid.Row="4" Text="{Binding Remarks, UpdateSourceTrigger=PropertyChanged}"
+                     TextWrapping="Wrap" AcceptsReturn="True" MinHeight="60" Margin="0,0,0,12" />
 
             <!-- Attachments -->
-            <TextBlock Text="Attachments" FontWeight="SemiBold" Margin="0,12,0,4" />
-            <Button Content="+ Add Attachment" Command="{Binding AddAttachmentCommand}"
-                    Padding="8,4" HorizontalAlignment="Left" Margin="0,0,0,4" />
-            <ItemsControl ItemsSource="{Binding PendingAttachmentPaths}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal" Margin="0,2">
-                            <TextBlock Text="{Binding Converter={StaticResource FilePathToFileNameConverter}}"
-                                       VerticalAlignment="Center"
-                                       TextTrimming="CharacterEllipsis" MaxWidth="300" />
-                            <Button Content="&#x2715;" Padding="4,0" Margin="8,0,0,0"
-                                    Command="{Binding DataContext.RemovePendingAttachmentCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                    CommandParameter="{Binding}" />
-                        </StackPanel>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+            <StackPanel Grid.Row="5" Margin="0,4,0,8">
+                <TextBlock Text="Attachments" FontSize="12" FontWeight="SemiBold"
+                           Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4" />
+                <Button Content="+ Add File" Style="{StaticResource SecondaryButton}"
+                        Command="{Binding AddAttachmentCommand}" HorizontalAlignment="Left" />
+                <ItemsControl ItemsSource="{Binding PendingAttachmentPaths}" Margin="0,6,0,0">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{StaticResource SurfaceAltBrush}" CornerRadius="4"
+                                    Padding="8,6" Margin="0,2">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📄" Margin="0,0,8,0" VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding Converter={StaticResource FilePathToFileNameConverter}}"
+                                                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                                   MaxWidth="350" FontSize="12"
+                                                   Foreground="{StaticResource TextPrimaryBrush}" />
+                                    </StackPanel>
+                                    <Button Content="Remove" Style="{StaticResource SecondaryButton}"
+                                            FontSize="10" Padding="6,2" HorizontalAlignment="Right"
+                                            Command="{Binding DataContext.RemovePendingAttachmentCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
 
             <!-- Error message -->
-            <TextBlock Text="{Binding ErrorMessage}" Foreground="Red"
+            <TextBlock Grid.Row="6" Text="{Binding ErrorMessage}"
+                       Foreground="{StaticResource DangerBrush}" FontWeight="SemiBold"
                        Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"
-                       Margin="0,4,0,8" TextWrapping="Wrap" />
+                       Margin="0,2,0,8" />
 
             <!-- Save button -->
-            <Button Command="{Binding SubmitCommand}"
-                    Margin="0,8,0,0" Padding="16,8"
-                    HorizontalAlignment="Left" MinWidth="100">
+            <Button Grid.Row="7" Command="{Binding SubmitCommand}" HorizontalAlignment="Left" MinWidth="140"
+                    Background="{StaticResource PrimaryBrush}" Foreground="White" FontWeight="SemiBold"
+                    FontSize="13" Padding="16,10" BorderThickness="0" Cursor="Hand">
                 <Button.Style>
                     <Style TargetType="Button">
-                        <Setter Property="Content" Value="Save" />
+                        <Setter Property="Content" Value="Save Document" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="16,10">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsEditMode}" Value="True">
                                 <Setter Property="Content" Value="Save Changes" />
+                                <Setter Property="Background" Value="{StaticResource AccentBrush}" />
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Button.Style>
             </Button>
-        </StackPanel>
+        </Grid>
     </Border>
 </UserControl>

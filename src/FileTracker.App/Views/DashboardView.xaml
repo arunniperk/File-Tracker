@@ -5,65 +5,123 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:converters="clr-namespace:FileTracker.App.Converters"
              mc:Ignorable="d"
-             d:DesignHeight="600" d:DesignWidth="1000">
+             d:DesignHeight="600" d:DesignWidth="1100">
     <UserControl.Resources>
         <converters:CountToVisibilityConverter x:Key="CountToVisibility" />
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid Margin="12">
+        <Grid Margin="24">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />  <!-- Header -->
-                <RowDefinition Height="Auto" />  <!-- Pending by Officer -->
-                <RowDefinition Height="Auto" />  <!-- Recent Documents -->
-                <RowDefinition Height="*" />     <!-- Overdue Documents -->
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <!-- ═══ Header ═══ -->
-            <Grid Grid.Row="0" Margin="0,0,0,8">
-                <StackPanel HorizontalAlignment="Left">
+            <!-- Header -->
+            <Grid Grid.Row="0" Margin="0,0,0,20">
+                <StackPanel>
                     <TextBlock Text="Operational Dashboard"
-                               FontSize="20" FontWeight="Bold" />
-                    <TextBlock Margin="0,2,0,0" FontSize="12" Foreground="Gray">
-                        <Run Text="Last updated: " />
-                        <Run Text="{Binding LastUpdated, StringFormat={}{0:dd-MMM-yyyy HH:mm:ss}}" />
+                               Style="{StaticResource HeadingLarge}" />
+                    <TextBlock Margin="0,4,0,0" FontSize="12"
+                               Foreground="{StaticResource TextMutedBrush}">
+                        <Run Text="Last refreshed: " />
+                        <Run Text="{Binding LastUpdated, StringFormat={}{0:dd MMM yyyy, HH:mm}}" />
                     </TextBlock>
                 </StackPanel>
-                <Button Content="↻ Refresh" Command="{Binding RefreshCommand}"
-                        HorizontalAlignment="Right" VerticalAlignment="Top"
-                        Width="80" Height="28" />
+                <Button Style="{StaticResource SecondaryButton}"
+                        Content="Refresh"
+                        Command="{Binding RefreshCommand}"
+                        HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                        Width="90" />
             </Grid>
 
-            <!-- ═══ Section 1: Pending by Officer ═══ -->
-            <GroupBox Grid.Row="1" Header="Documents Pending at Officers"
-                      Margin="0,0,0,8"
+            <!-- Stats Cards -->
+            <Grid Grid.Row="1" Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Background="{StaticResource SurfaceBrush}"
+                        CornerRadius="8" Padding="20" Margin="0,0,10,0"
+                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="PENDING" FontSize="11" FontWeight="Bold"
+                                   Foreground="{StaticResource TextMutedBrush}" />
+                        <TextBlock Text="{Binding PendingByOfficer.Count}"
+                                   FontSize="36" FontWeight="Bold"
+                                   Foreground="{StaticResource PrimaryBrush}" Margin="0,4,0,0" />
+                        <TextBlock Text="Officers with pending work" FontSize="11"
+                                   Foreground="{StaticResource TextSecondaryBrush}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Background="{StaticResource SurfaceBrush}"
+                        CornerRadius="8" Padding="20" Margin="5,0"
+                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="RECENT" FontSize="11" FontWeight="Bold"
+                                   Foreground="{StaticResource TextMutedBrush}" />
+                        <TextBlock Text="{Binding RecentDocuments.Count}"
+                                   FontSize="36" FontWeight="Bold"
+                                   Foreground="{StaticResource InfoColor}" Margin="0,4,0,0" />
+                        <TextBlock Text="Documents this week" FontSize="11"
+                                   Foreground="{StaticResource TextSecondaryBrush}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Background="{StaticResource SurfaceBrush}"
+                        CornerRadius="8" Padding="20" Margin="10,0,0,0"
+                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="OVERDUE" FontSize="11" FontWeight="Bold"
+                                   Foreground="{StaticResource DangerBrush}" />
+                        <TextBlock Text="{Binding OverdueDocuments.Count}"
+                                   FontSize="36" FontWeight="Bold"
+                                   Foreground="{StaticResource DangerBrush}" Margin="0,4,0,0" />
+                        <TextBlock Text="Stalled over 7 days" FontSize="11"
+                                   Foreground="{StaticResource TextSecondaryBrush}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Pending by Officer -->
+            <GroupBox Grid.Row="2" Header="Pending by Officer"
+                      Margin="0,0,0,20"
                       Visibility="{Binding HasPending, Converter={StaticResource CountToVisibility}}">
-                <ItemsControl ItemsSource="{Binding PendingByOfficer}" Margin="4">
+                <ItemsControl ItemsSource="{Binding PendingByOfficer}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Background="#F0F4F8" CornerRadius="4"
-                                    Padding="8,6" Margin="2">
+                            <Border Background="{StaticResource SurfaceAltBrush}"
+                                    CornerRadius="6" Padding="16,12" Margin="4"
+                                    Width="220" Cursor="Hand"
+                                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
                                 <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-
-                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding OfficerName}"
-                                                   FontWeight="SemiBold" FontSize="13" />
-                                    </StackPanel>
-
-                                    <TextBlock Grid.Column="1" VerticalAlignment="Center"
-                                               FontSize="16" FontWeight="Bold"
-                                               Foreground="#1A5276" Margin="12,0">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" Text="{Binding OfficerName}"
+                                               FontWeight="SemiBold" FontSize="13"
+                                               Foreground="{StaticResource TextPrimaryBrush}" />
+                                    <TextBlock Grid.Row="1" FontSize="28" FontWeight="Bold"
+                                               Foreground="{StaticResource PrimaryBrush}" Margin="0,2,0,0">
                                         <Run Text="{Binding DocumentCount}" />
-                                        <Run Text=" docs" FontSize="12" FontWeight="Normal" />
                                     </TextBlock>
-
-                                    <Button Grid.Column="2" Content="View →"
-                                            Padding="8,4" FontSize="11"
+                                    <TextBlock Grid.Row="2" Text="pending documents"
+                                               FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                                    <Button Grid.RowSpan="3" Style="{StaticResource SecondaryButton}"
+                                            Content="View" FontSize="10" Padding="6,4"
+                                            HorizontalAlignment="Right" VerticalAlignment="Center"
                                             Command="{Binding DataContext.NavigateToOfficerCommand,
                                                 RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                             CommandParameter="{Binding}" />
@@ -74,25 +132,25 @@
                 </ItemsControl>
             </GroupBox>
 
-            <!-- ═══ Section 2: Recent Documents ═══ -->
-            <GroupBox Grid.Row="2" Header="Recently Registered (Last 7 Days)"
-                      Margin="0,0,0,8"
+            <!-- Recent Documents -->
+            <GroupBox Grid.Row="3" Header="Recently Registered"
+                      Margin="0,0,0,20"
                       Visibility="{Binding HasRecent, Converter={StaticResource CountToVisibility}}">
                 <DataGrid ItemsSource="{Binding RecentDocuments}"
                           AutoGenerateColumns="False" IsReadOnly="True"
-                          HeadersVisibility="Column" MaxHeight="200"
-                          Margin="4">
+                          MaxHeight="250">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Tracking ID" Binding="{Binding TrackingId}" Width="110" />
-                        <DataGridTextColumn Header="Direction" Binding="{Binding Direction}" Width="80" />
-                        <DataGridTextColumn Header="Subject" Binding="{Binding Subject}" Width="220" />
+                        <DataGridTextColumn Header="Direction" Binding="{Binding Direction}" Width="70" />
+                        <DataGridTextColumn Header="Subject" Binding="{Binding Subject}" Width="250" />
                         <DataGridTextColumn Header="Date" Binding="{Binding DocumentDate, StringFormat={}{0:dd-MMM-yyyy}}" Width="110" />
-                        <DataGridTextColumn Header="Current Location" Binding="{Binding CurrentLocation}" Width="150" />
-                        <DataGridTextColumn Header="Sender" Binding="{Binding Sender}" Width="*" />
-                        <DataGridTemplateColumn Width="60">
+                        <DataGridTextColumn Header="Location" Binding="{Binding CurrentLocation}" Width="150" />
+                        <DataGridTextColumn Header="Sender/Recipient" Binding="{Binding Sender}" Width="*" />
+                        <DataGridTemplateColumn Width="70">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button Content="Open" Padding="4,2"
+                                    <Button Style="{StaticResource SecondaryButton}"
+                                            Content="Open" FontSize="11" Padding="6,3"
                                             Command="{Binding DataContext.OpenDocumentCommand,
                                                 RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                             CommandParameter="{Binding}" />
@@ -103,42 +161,40 @@
                 </DataGrid>
             </GroupBox>
 
-            <!-- ═══ Section 3: Overdue Documents ═══ -->
-            <GroupBox Grid.Row="3" Margin="0,0,0,8"
+            <!-- Overdue -->
+            <GroupBox Grid.Row="4" Margin="0,0,0,20"
                       Visibility="{Binding HasOverdue, Converter={StaticResource CountToVisibility}}">
                 <GroupBox.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="⚠ Overdue — Action Required"
-                                   Foreground="Red" FontWeight="Bold" FontSize="13" />
-                        <TextBlock Margin="8,0,0,0" FontSize="12" Foreground="Gray"
-                                   VerticalAlignment="Center">
+                        <TextBlock Text="OVERDUE" Foreground="{StaticResource DangerBrush}"
+                                   FontWeight="Bold" FontSize="12" />
+                        <TextBlock Margin="8,0,0,0" FontSize="12"
+                                   Foreground="{StaticResource TextMutedBrush}">
                             <Run Text="(" />
                             <Run Text="{Binding OverdueDocuments.Count, Mode=OneWay}" />
                             <Run Text=" stalled)" />
                         </TextBlock>
                     </StackPanel>
                 </GroupBox.Header>
-
                 <DataGrid ItemsSource="{Binding OverdueDocuments}"
-                          AutoGenerateColumns="False" IsReadOnly="True"
-                          HeadersVisibility="Column"
-                          Margin="4">
+                          AutoGenerateColumns="False" IsReadOnly="True">
                     <DataGrid.RowStyle>
                         <Style TargetType="DataGridRow">
-                            <Setter Property="Background" Value="#FFF5F5" />
+                            <Setter Property="Background" Value="{StaticResource DangerBgBrush}" />
                         </Style>
                     </DataGrid.RowStyle>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Tracking ID" Binding="{Binding TrackingId}" Width="110" />
-                        <DataGridTextColumn Header="Direction" Binding="{Binding Direction}" Width="80" />
-                        <DataGridTextColumn Header="Subject" Binding="{Binding Subject}" Width="220" />
+                        <DataGridTextColumn Header="Direction" Binding="{Binding Direction}" Width="70" />
+                        <DataGridTextColumn Header="Subject" Binding="{Binding Subject}" Width="250" />
                         <DataGridTextColumn Header="Date" Binding="{Binding DocumentDate, StringFormat={}{0:dd-MMM-yyyy}}" Width="110" />
-                        <DataGridTextColumn Header="Current Location" Binding="{Binding CurrentLocation}" Width="150" />
-                        <DataGridTextColumn Header="Sender" Binding="{Binding Sender}" Width="*" />
-                        <DataGridTemplateColumn Width="60">
+                        <DataGridTextColumn Header="Location" Binding="{Binding CurrentLocation}" Width="150" />
+                        <DataGridTextColumn Header="Sender/Recipient" Binding="{Binding Sender}" Width="*" />
+                        <DataGridTemplateColumn Width="70">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button Content="Open" Padding="4,2"
+                                    <Button Style="{StaticResource SecondaryButton}"
+                                            Content="Open" FontSize="11" Padding="6,3"
                                             Command="{Binding DataContext.OpenDocumentCommand,
                                                 RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                             CommandParameter="{Binding}" />
