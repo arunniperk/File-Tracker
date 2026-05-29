@@ -8,145 +8,156 @@
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
         Title="File Tracker — IIT Dharwad" Height="750" Width="1050">
-    <Grid Margin="8">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />  <!-- Search Bar -->
-            <RowDefinition Height="Auto" />  <!-- Register Form -->
-            <RowDefinition Height="*" />     <!-- DataGrid + Pagination -->
-        </Grid.RowDefinitions>
+    <TabControl x:Name="MainTabs"
+                 SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}">
+        <!-- TAB 0: Dashboard (default) -->
+        <TabItem Header="Dashboard">
+            <views:DashboardView DataContext="{Binding DashboardVm}" />
+        </TabItem>
 
-        <!-- Row 0: Search Bar -->
-        <GroupBox Header="Search Documents" Grid.Row="0" Margin="0,0,0,4">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="120" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="120" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="140" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
+        <!-- TAB 1: Documents -->
+        <TabItem Header="Documents">
+            <Grid Margin="8">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />  <!-- Search Bar -->
+                    <RowDefinition Height="Auto" />  <!-- Register Form -->
+                    <RowDefinition Height="*" />     <!-- DataGrid + Pagination -->
                 </Grid.RowDefinitions>
 
-                <!-- Row 0: File#, TrackingID, Subject, Sender/Recipient -->
-                <TextBlock Text="File #:" Grid.Row="0" Grid.Column="0"
-                           VerticalAlignment="Center" Margin="0,0,4,0" />
-                <TextBox Grid.Row="0" Grid.Column="1"
-                         Text="{Binding SearchVm.SearchFileNumber, UpdateSourceTrigger=PropertyChanged}" />
+                <!-- Row 0: Search Bar -->
+                <GroupBox Header="Search Documents" Grid.Row="0" Margin="0,0,0,4">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="120" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="120" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
 
-                <TextBlock Text="Tracking ID:" Grid.Row="0" Grid.Column="2"
-                           VerticalAlignment="Center" Margin="8,0,4,0" />
-                <TextBox Grid.Row="0" Grid.Column="3"
-                         Text="{Binding SearchVm.SearchTrackingId, UpdateSourceTrigger=PropertyChanged}" />
+                        <!-- Row 0: File#, TrackingID, Subject, Sender/Recipient -->
+                        <TextBlock Text="File #:" Grid.Row="0" Grid.Column="0"
+                                   VerticalAlignment="Center" Margin="0,0,4,0" />
+                        <TextBox Grid.Row="0" Grid.Column="1"
+                                 Text="{Binding SearchVm.SearchFileNumber, UpdateSourceTrigger=PropertyChanged}" />
 
-                <TextBlock Text="Subject:" Grid.Row="0" Grid.Column="4"
-                           VerticalAlignment="Center" Margin="8,0,4,0" />
-                <TextBox Grid.Row="0" Grid.Column="5"
-                         Text="{Binding SearchVm.SearchSubject, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Text="Tracking ID:" Grid.Row="0" Grid.Column="2"
+                                   VerticalAlignment="Center" Margin="8,0,4,0" />
+                        <TextBox Grid.Row="0" Grid.Column="3"
+                                 Text="{Binding SearchVm.SearchTrackingId, UpdateSourceTrigger=PropertyChanged}" />
 
-                <TextBlock Text="Sender/Recipient:" Grid.Row="0" Grid.Column="6"
-                           VerticalAlignment="Center" Margin="8,0,4,0" />
-                <TextBox Grid.Row="0" Grid.Column="7"
-                         Text="{Binding SearchVm.SearchSenderRecipient, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Text="Subject:" Grid.Row="0" Grid.Column="4"
+                                   VerticalAlignment="Center" Margin="8,0,4,0" />
+                        <TextBox Grid.Row="0" Grid.Column="5"
+                                 Text="{Binding SearchVm.SearchSubject, UpdateSourceTrigger=PropertyChanged}" />
 
-                <!-- Row 1: FromDate, ToDate, Search, Clear, Positions, Page indicator -->
-                <TextBlock Text="From:" Grid.Row="1" Grid.Column="0"
-                           VerticalAlignment="Center" Margin="0,4,4,0" />
-                <DatePicker Grid.Row="1" Grid.Column="1"
-                            SelectedDate="{Binding SearchVm.SearchFromDate}" Margin="0,4,0,0" />
+                        <TextBlock Text="Sender/Recipient:" Grid.Row="0" Grid.Column="6"
+                                   VerticalAlignment="Center" Margin="8,0,4,0" />
+                        <TextBox Grid.Row="0" Grid.Column="7"
+                                 Text="{Binding SearchVm.SearchSenderRecipient, UpdateSourceTrigger=PropertyChanged}" />
 
-                <TextBlock Text="To:" Grid.Row="1" Grid.Column="2"
-                           VerticalAlignment="Center" Margin="8,4,4,0" />
-                <DatePicker Grid.Row="1" Grid.Column="3"
-                            SelectedDate="{Binding SearchVm.SearchToDate}" Margin="0,4,0,0" />
+                        <!-- Row 1: FromDate, ToDate, Search, Clear, Positions, Page indicator -->
+                        <TextBlock Text="From:" Grid.Row="1" Grid.Column="0"
+                                   VerticalAlignment="Center" Margin="0,4,4,0" />
+                        <DatePicker Grid.Row="1" Grid.Column="1"
+                                    SelectedDate="{Binding SearchVm.SearchFromDate}" Margin="0,4,0,0" />
 
-                <Button Grid.Row="1" Grid.Column="4" Content="Search"
-                        Command="{Binding SearchVm.SearchCommand}"
-                        Width="70" Margin="8,4,4,0" IsDefault="True" />
+                        <TextBlock Text="To:" Grid.Row="1" Grid.Column="2"
+                                   VerticalAlignment="Center" Margin="8,4,4,0" />
+                        <DatePicker Grid.Row="1" Grid.Column="3"
+                                    SelectedDate="{Binding SearchVm.SearchToDate}" Margin="0,4,0,0" />
 
-                <Button Grid.Row="1" Grid.Column="5" Content="Clear"
-                        Command="{Binding SearchVm.ClearSearchCommand}"
-                        Width="50" Margin="0,4,0,0" />
+                        <Button Grid.Row="1" Grid.Column="4" Content="Search"
+                                Command="{Binding SearchVm.SearchCommand}"
+                                Width="70" Margin="8,4,4,0" IsDefault="True" />
 
-                <Button Grid.Row="1" Grid.Column="6" Content="⚙ Positions"
-                        Command="{Binding OpenManagePositionsCommand}"
-                        Width="80" Margin="8,4,4,0" />
+                        <Button Grid.Row="1" Grid.Column="5" Content="Clear"
+                                Command="{Binding SearchVm.ClearSearchCommand}"
+                                Width="50" Margin="0,4,0,0" />
 
-                <TextBlock Grid.Row="1" Grid.Column="7"
-                           Text="{Binding SearchVm.PageIndicator}"
-                           VerticalAlignment="Center" Margin="12,4,0,0"
-                           FontWeight="SemiBold" />
+                        <Button Grid.Row="1" Grid.Column="6" Content="⚙ Positions"
+                                Command="{Binding OpenManagePositionsCommand}"
+                                Width="80" Margin="8,4,4,0" />
+
+                        <TextBlock Grid.Row="1" Grid.Column="7"
+                                   Text="{Binding SearchVm.PageIndicator}"
+                                   VerticalAlignment="Center" Margin="12,4,0,0"
+                                   FontWeight="SemiBold" />
+                    </Grid>
+                </GroupBox>
+
+                <!-- Row 1: Registration Form -->
+                <views:RegisterDocumentView x:Name="RegisterDocumentViewControl"
+                                             Grid.Row="1" />
+
+                <!-- Row 2: DataGrid + Pagination -->
+                <Grid Grid.Row="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- DataGrid -->
+                    <DataGrid Grid.Row="0" Margin="8,4,8,4"
+                              ItemsSource="{Binding SearchVm.SearchResults}"
+                              SelectedItem="{Binding SelectedDocument}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              HeadersVisibility="Column">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="40" />
+                            <DataGridTextColumn Header="Tracking ID" Binding="{Binding TrackingId}" Width="90" />
+                            <DataGridTextColumn Header="Direction" Binding="{Binding Direction}" Width="80" />
+                            <DataGridTextColumn Header="File Number" Binding="{Binding OriginalFileNumber}" Width="120" />
+                            <DataGridTextColumn Header="Subject" Binding="{Binding Subject}" Width="180" />
+                            <DataGridTextColumn Header="Date" Binding="{Binding DocumentDate, StringFormat={}{0:dd-MMM-yyyy}}" Width="100" />
+                            <DataGridTextColumn Header="Sender" Binding="{Binding Sender}" Width="130" />
+                            <DataGridTextColumn Header="Current Location" Binding="{Binding CurrentLocation}" Width="140" />
+                            <DataGridTextColumn Header="Remarks" Binding="{Binding Remarks}" Width="*" />
+                            <DataGridTemplateColumn Width="140">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Content="Move" Padding="4,2" Margin="0,0,4,0"
+                                                    Command="{Binding DataContext.RecordMovementCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                    CommandParameter="{Binding}" />
+                                            <Button Content="View" Padding="4,2" Margin="0,0,4,0"
+                                                    Command="{Binding DataContext.OpenDocumentDetailCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                    CommandParameter="{Binding}" />
+                                            <Button Content="Edit" Padding="4,2"
+                                                    Command="{Binding DataContext.EditDocumentCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                    CommandParameter="{Binding}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Pagination bar -->
+                    <StackPanel Grid.Row="1" Orientation="Horizontal"
+                                HorizontalAlignment="Center" Margin="0,4,0,0">
+                        <Button Content="◀ Previous"
+                                Command="{Binding SearchVm.PreviousPageCommand}"
+                                IsEnabled="{Binding SearchVm.HasPreviousPage}"
+                                Margin="0,0,8,0" Width="80" />
+                        <TextBlock Text="{Binding SearchVm.PageIndicator}"
+                                   VerticalAlignment="Center"
+                                   Margin="8,0" Width="200" TextAlignment="Center" />
+                        <Button Content="Next ▶"
+                                Command="{Binding SearchVm.NextPageCommand}"
+                                IsEnabled="{Binding SearchVm.HasNextPage}"
+                                Margin="8,0,0,0" Width="80" />
+                    </StackPanel>
+                </Grid>
             </Grid>
-        </GroupBox>
-
-        <!-- Row 1: Registration Form -->
-        <views:RegisterDocumentView x:Name="RegisterDocumentViewControl"
-                                     Grid.Row="1" />
-
-        <!-- Row 2: DataGrid + Pagination -->
-        <Grid Grid.Row="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-
-            <!-- DataGrid -->
-            <DataGrid Grid.Row="0" Margin="8,4,8,4"
-                      ItemsSource="{Binding SearchVm.SearchResults}"
-                      SelectedItem="{Binding SelectedDocument}"
-                      AutoGenerateColumns="False"
-                      IsReadOnly="True"
-                      HeadersVisibility="Column">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="40" />
-                    <DataGridTextColumn Header="Tracking ID" Binding="{Binding TrackingId}" Width="90" />
-                    <DataGridTextColumn Header="Direction" Binding="{Binding Direction}" Width="80" />
-                    <DataGridTextColumn Header="File Number" Binding="{Binding OriginalFileNumber}" Width="120" />
-                    <DataGridTextColumn Header="Subject" Binding="{Binding Subject}" Width="180" />
-                    <DataGridTextColumn Header="Date" Binding="{Binding DocumentDate, StringFormat={}{0:dd-MMM-yyyy}}" Width="100" />
-                    <DataGridTextColumn Header="Sender" Binding="{Binding Sender}" Width="130" />
-                    <DataGridTextColumn Header="Current Location" Binding="{Binding CurrentLocation}" Width="140" />
-                    <DataGridTextColumn Header="Remarks" Binding="{Binding Remarks}" Width="*" />
-                    <DataGridTemplateColumn Width="140">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <Button Content="Move" Padding="4,2" Margin="0,0,4,0"
-                                            Command="{Binding DataContext.RecordMovementCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                            CommandParameter="{Binding}" />
-                                    <Button Content="View" Padding="4,2" Margin="0,0,4,0"
-                                            Command="{Binding DataContext.OpenDocumentDetailCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                            CommandParameter="{Binding}" />
-                                    <Button Content="Edit" Padding="4,2"
-                                            Command="{Binding DataContext.EditDocumentCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                            CommandParameter="{Binding}" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                </DataGrid.Columns>
-            </DataGrid>
-
-            <!-- Pagination bar -->
-            <StackPanel Grid.Row="1" Orientation="Horizontal"
-                        HorizontalAlignment="Center" Margin="0,4,0,0">
-                <Button Content="◀ Previous"
-                        Command="{Binding SearchVm.PreviousPageCommand}"
-                        IsEnabled="{Binding SearchVm.HasPreviousPage}"
-                        Margin="0,0,8,0" Width="80" />
-                <TextBlock Text="{Binding SearchVm.PageIndicator}"
-                           VerticalAlignment="Center"
-                           Margin="8,0" Width="200" TextAlignment="Center" />
-                <Button Content="Next ▶"
-                        Command="{Binding SearchVm.NextPageCommand}"
-                        IsEnabled="{Binding SearchVm.HasNextPage}"
-                        Margin="8,0,0,0" Width="80" />
-            </StackPanel>
-        </Grid>
-    </Grid>
+        </TabItem>
+    </TabControl>
 </Window>

@@ -74,6 +74,7 @@ public partial class App : Application
 
         // ViewModels — transient so each window gets fresh state
         builder.Services.AddTransient<MainViewModel>();
+        builder.Services.AddTransient<DashboardViewModel>();
         builder.Services.AddTransient<RegisterDocumentViewModel>();
         builder.Services.AddTransient<DocumentDetailViewModel>();
         builder.Services.AddTransient<SearchViewModel>();

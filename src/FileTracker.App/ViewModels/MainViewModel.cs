@@ -16,9 +16,13 @@ public partial class MainViewModel : ObservableObject, IRecipient<DocumentRegist
     private readonly IMovementService _movementService;
 
     public SearchViewModel SearchVm { get; }
+    public DashboardViewModel DashboardVm { get; }
 
     [ObservableProperty]
     private Document? _selectedDocument;
+
+    [ObservableProperty]
+    private int _selectedTabIndex;
 
     public bool HasUnsavedChanges => _registerVm.HasUnsavedChanges;
 
@@ -26,13 +30,16 @@ public partial class MainViewModel : ObservableObject, IRecipient<DocumentRegist
         IDocumentService docService,
         RegisterDocumentViewModel registerVm,
         SearchViewModel searchVm,
-        IMovementService movementService)
+        IMovementService movementService,
+        DashboardViewModel dashboardVm)
     {
         _docService = docService;
         _registerVm = registerVm;
         _movementService = movementService;
         SearchVm = searchVm;
+        DashboardVm = dashboardVm;
         WeakReferenceMessenger.Default.Register(this);
+        WeakReferenceMessenger.Default.Register<SwitchToDocumentsTabMessage>(this, (_, _) => SelectedTabIndex = 1);
         WeakReferenceMessenger.Default.Register<DocumentMovedMessage>(this, (_, _) => SearchVm.SearchCommand.Execute(null));
         SearchVm.SearchCommand.Execute(null);
     }
