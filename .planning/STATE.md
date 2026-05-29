@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: verifying
 stopped_at: Plan 01-01 complete — walking skeleton with SQLite + WPF
-last_updated: "2026-05-29T09:43:59.568Z"
+last_updated: "2026-05-29T10:13:15.139Z"
 last_activity: 2026-05-29
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 9
+  completed_plans: 7
   percent: 50
 ---
 
@@ -30,7 +30,7 @@ Plan: 3 of 3 (01-01: Walking Skeleton — Complete)
 Status: Phase complete — ready for verification
 Last activity: 2026-05-29
 
-Progress: [██████████] 100%
+Progress: [████████░░] 78%
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Progress: [██████████] 100%
 | Phase 02-search-movement-tracking P01 | 7min | 2 tasks | 15 files |
 | Phase 02-search-movement-tracking P02 | 7 | 2 tasks | 11 files |
 | Phase 02-search-movement-tracking P03 | 40min | 2 tasks | 20 files |
+| Phase 03-dashboard-reports-attachments P01 | 8 | 2 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,7 @@ Recent decisions affecting current work:
 - [Phase ?]: Repository interfaces placed in FileTracker.Core.Services not FileTracker.Data — follows existing IDocumentRepository pattern to avoid circular dependency
 - [Phase ?]: IMovementRepository exposes ONLY InsertAsync/GetByDocumentIdAsync/GetCurrentLocationAsync — compiler-enforced immutability (D-08/MOVE-04)
 - [Phase ?]: CurrentLocation is display-only property on Document populated post-search — no DB column (Pitfall 4 mitigation)
+- [Phase ?]: Dashboard queries use single-JOIN ROW_NUMBER() OVER (PARTITION BY) pattern to avoid N+1 per Pitfall 4
 
 ### Pending Todos
 
@@ -100,6 +102,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-29T09:43:59.559Z
+Last session: 2026-05-29T10:13:06.145Z
 Stopped at: Plan 01-01 complete — walking skeleton with SQLite + WPF
 Resume file: None

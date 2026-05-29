@@ -45,9 +45,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Dashboard
 
-- [ ] **DASH-01**: Dashboard shows count of documents pending at each officer
-- [ ] **DASH-02**: Dashboard shows recently registered documents (last 7 days)
-- [ ] **DASH-03**: Dashboard highlights overdue documents (pending beyond configurable threshold, default 7 days)
+- [x] **DASH-01**: Dashboard shows count of documents pending at each officer
+- [x] **DASH-02**: Dashboard shows recently registered documents (last 7 days)
+- [x] **DASH-03**: Dashboard highlights overdue documents (pending beyond configurable threshold, default 7 days)
 
 ### Data Management
 
@@ -103,9 +103,9 @@ Deferred to future release. Tracked but not in current roadmap.
 | ATCH-01 | Phase 3 | Pending |
 | ATCH-02 | Phase 3 | Pending |
 | ATCH-03 | Phase 3 | Pending |
-| DASH-01 | Phase 3 | Pending |
-| DASH-02 | Phase 3 | Pending |
-| DASH-03 | Phase 3 | Pending |
+| DASH-01 | Phase 3 | Complete |
+| DASH-02 | Phase 3 | Complete |
+| DASH-03 | Phase 3 | Complete |
 | DATA-01 | Phase 4 | Pending |
 | DATA-02 | Phase 4 | Pending |
 | DATA-03 | Phase 4 | Pending |
