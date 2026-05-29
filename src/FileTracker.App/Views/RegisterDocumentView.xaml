@@ -3,15 +3,21 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:converters="clr-namespace:FileTracker.App.Converters"
              mc:Ignorable="d"
              d:DesignHeight="500" d:DesignWidth="500">
+    <UserControl.Resources>
+        <converters:BoolInvertConverter x:Key="InverseBoolConverter" />
+    </UserControl.Resources>
     <Border Padding="16" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4" Margin="8">
         <StackPanel>
-            <TextBlock Text="Register Document" FontSize="18" FontWeight="SemiBold"
+            <!-- Mode indicator (D-08: detail panel separate from registration) -->
+            <TextBlock Text="{Binding ModeIndicator}" FontSize="18" FontWeight="SemiBold"
                        Margin="0,0,0,16" />
 
-            <!-- Incoming / Outgoing Toggle (D-04) -->
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+            <!-- Incoming / Outgoing Toggle (D-04) — disabled in edit mode -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,12"
+                        IsEnabled="{Binding IsEditMode, Converter={StaticResource InverseBoolConverter}}">
                 <RadioButton Content="Incoming" IsChecked="{Binding IsIncoming}"
                              GroupName="Direction" Margin="0,0,16,0" />
                 <RadioButton Content="Outgoing"
@@ -60,9 +66,20 @@
                        Margin="0,4,0,8" TextWrapping="Wrap" />
 
             <!-- Save button -->
-            <Button Content="Save" Command="{Binding SubmitCommand}"
+            <Button Command="{Binding SubmitCommand}"
                     Margin="0,8,0,0" Padding="16,8"
-                    HorizontalAlignment="Left" MinWidth="100" />
+                    HorizontalAlignment="Left" MinWidth="100">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Content" Value="Save" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                <Setter Property="Content" Value="Save Changes" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
         </StackPanel>
     </Border>
 </UserControl>

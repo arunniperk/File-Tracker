@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using FileTracker.App.ViewModels;
+using FileTracker.App.Views;
 
 using FileTracker.Core.Services;
 using FileTracker.Data;
@@ -15,6 +16,12 @@ namespace FileTracker.App;
 public partial class App : Application
 {
     private IHost? _host;
+
+    /// <summary>
+    /// Expose the DI service provider for ViewModels that need to resolve services at runtime.
+    /// </summary>
+    public IServiceProvider Services => _host?.Services
+        ?? throw new InvalidOperationException("Host not initialized");
 
     protected override async void OnStartup(StartupEventArgs e)
     {
@@ -64,6 +71,7 @@ public partial class App : Application
         // ViewModels — transient so each window gets fresh state
         builder.Services.AddTransient<MainViewModel>();
         builder.Services.AddTransient<RegisterDocumentViewModel>();
+        builder.Services.AddTransient<DocumentDetailViewModel>();
 
         // Views
         builder.Services.AddSingleton<MainWindow>();

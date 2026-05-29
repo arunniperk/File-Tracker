@@ -5,9 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FileTracker.App"
         xmlns:views="clr-namespace:FileTracker.App.Views"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
-        Title="File Tracker — IIT Dharwad" Height="700" Width="900">
+        Title="File Tracker — IIT Dharwad" Height="700" Width="1000">
     <Grid Margin="8">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -15,11 +20,12 @@
 
         <!-- Registration Form -->
         <views:RegisterDocumentView x:Name="RegisterDocumentViewControl"
-                                     Grid.Row="0" />
+                                     Grid.Row="0" Grid.ColumnSpan="2" />
 
         <!-- Document List -->
-        <DataGrid Grid.Row="1" Margin="8,0,8,8"
+        <DataGrid Grid.Row="1" Grid.Column="0" Margin="8,0,8,8"
                   ItemsSource="{Binding Documents}"
+                  SelectedItem="{Binding SelectedDocument}"
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
                   HeadersVisibility="Column">
@@ -28,10 +34,24 @@
                 <DataGridTextColumn Header="Tracking ID" Binding="{Binding TrackingId}" Width="90" />
                 <DataGridTextColumn Header="Direction" Binding="{Binding Direction}" Width="80" />
                 <DataGridTextColumn Header="File Number" Binding="{Binding OriginalFileNumber}" Width="120" />
-                <DataGridTextColumn Header="Subject" Binding="{Binding Subject}" Width="200" />
+                <DataGridTextColumn Header="Subject" Binding="{Binding Subject}" Width="180" />
                 <DataGridTextColumn Header="Date" Binding="{Binding DocumentDate, StringFormat={}{0:dd-MMM-yyyy}}" Width="100" />
-                <DataGridTextColumn Header="Sender" Binding="{Binding Sender}" Width="150" />
+                <DataGridTextColumn Header="Sender" Binding="{Binding Sender}" Width="130" />
                 <DataGridTextColumn Header="Remarks" Binding="{Binding Remarks}" Width="*" />
+                <DataGridTemplateColumn Width="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="View" Padding="4,2" Margin="0,0,4,0"
+                                        Command="{Binding DataContext.OpenDocumentDetailCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                        CommandParameter="{Binding}" />
+                                <Button Content="Edit" Padding="4,2"
+                                        Command="{Binding DataContext.EditDocumentCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                        CommandParameter="{Binding}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

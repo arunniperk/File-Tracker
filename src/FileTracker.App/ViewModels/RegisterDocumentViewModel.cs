@@ -47,6 +47,15 @@ public partial class RegisterDocumentViewModel : ObservableValidator
     [ObservableProperty]
     private bool _hasUnsavedChanges;
 
+    [ObservableProperty]
+    private bool _isEditMode;
+
+    [ObservableProperty]
+    private int? _editingDocumentId;
+
+    [ObservableProperty]
+    private string _modeIndicator = "Register New Document";
+
     public RegisterDocumentViewModel(IDocumentService docService)
     {
         _docService = docService;
@@ -76,6 +85,32 @@ public partial class RegisterDocumentViewModel : ObservableValidator
         SubmitCommand.NotifyCanExecuteChanged();
     }
 
+    /// <summary>
+    /// Pre-populate the form for editing an existing document.
+    /// Sets IsEditMode=true and populates all fields from the document.
+    /// </summary>
+    public void LoadForEdit(Document document)
+    {
+        _isClearing = true;
+
+        IsEditMode = true;
+        EditingDocumentId = document.Id;
+        IsIncoming = document.Direction == DocumentDirection.Incoming;
+        ModeIndicator = $"Edit Document #{document.TrackingId}";
+        Subject = document.Subject;
+        OriginalFileNumber = document.OriginalFileNumber;
+        SenderOrRecipient = document.Direction == DocumentDirection.Incoming
+            ? (document.Sender ?? string.Empty)
+            : (document.Recipient ?? string.Empty);
+        Remarks = document.Remarks ?? string.Empty;
+        DocumentDate = document.DocumentDate;
+        HasUnsavedChanges = false;
+        ErrorMessage = string.Empty;
+        ClearErrors();
+
+        _isClearing = false;
+    }
+
     [RelayCommand(CanExecute = nameof(CanSubmit))]
     private async Task SubmitAsync()
     {
@@ -97,7 +132,15 @@ public partial class RegisterDocumentViewModel : ObservableValidator
 
         try
         {
-            await _docService.RegisterAsync(dto);
+            if (IsEditMode && EditingDocumentId.HasValue)
+            {
+                await _docService.UpdateAsync(EditingDocumentId.Value, dto);
+            }
+            else
+            {
+                await _docService.RegisterAsync(dto);
+            }
+
             ClearForm();
             WeakReferenceMessenger.Default.Send(new DocumentRegisteredMessage(true));
         }
@@ -122,6 +165,9 @@ public partial class RegisterDocumentViewModel : ObservableValidator
     {
         _isClearing = true;
         HasUnsavedChanges = false;
+        IsEditMode = false;
+        EditingDocumentId = null;
+        ModeIndicator = "Register New Document";
         Subject = string.Empty;
         OriginalFileNumber = string.Empty;
         SenderOrRecipient = string.Empty;
