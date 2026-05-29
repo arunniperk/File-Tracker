@@ -76,6 +76,7 @@ public partial class App : Application
         builder.Services.AddSingleton<IAttachmentRepository, AttachmentRepository>();
         builder.Services.AddSingleton<IAttachmentService, AttachmentService>();
         builder.Services.AddSingleton<IReportService, ReportService>();
+        builder.Services.AddSingleton<IBackupService, BackupService>();
 
         // ViewModels — transient so each window gets fresh state
         builder.Services.AddTransient<MainViewModel>();
