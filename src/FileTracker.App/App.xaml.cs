@@ -64,14 +64,17 @@ public partial class App : Application
 
         // Data layer
         builder.Services.AddSingleton<IDocumentRepository, DocumentRepository>();
+        builder.Services.AddSingleton<IPositionRepository, PositionRepository>();
 
         // Services
         builder.Services.AddSingleton<IDocumentService, DocumentService>();
+        builder.Services.AddSingleton<IPositionService, PositionService>();
 
         // ViewModels — transient so each window gets fresh state
         builder.Services.AddTransient<MainViewModel>();
         builder.Services.AddTransient<RegisterDocumentViewModel>();
         builder.Services.AddTransient<DocumentDetailViewModel>();
+        builder.Services.AddTransient<ManagePositionsViewModel>();
 
         // Views
         builder.Services.AddSingleton<MainWindow>();

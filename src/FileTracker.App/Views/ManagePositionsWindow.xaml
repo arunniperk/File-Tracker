@@ -1,0 +1,88 @@
+<Window x:Class="FileTracker.App.Views.ManagePositionsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converters="clr-namespace:FileTracker.App.Converters"
+        Title="Manage Positions" Height="550" Width="700"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResizeWithGrip">
+
+    <Window.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+        <converters:BoolToStatusConverter x:Key="BoolToStatus" />
+    </Window.Resources>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Row 0: Add Position Form -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="New Position:" VerticalAlignment="Center" Margin="0,0,8,0" />
+            <TextBox Text="{Binding NewPositionName, UpdateSourceTrigger=PropertyChanged}"
+                     Width="200" Height="24" VerticalContentAlignment="Center" />
+            <Button Content="Add Position" Command="{Binding AddPositionCommand}"
+                    Margin="8,0,0,0" Padding="10,4" />
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="Red"
+                       VerticalAlignment="Center" Margin="12,0,0,0" />
+        </StackPanel>
+
+        <!-- Row 1: Rename Section (visible when editing) -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10"
+                    Visibility="{Binding IsEditingName, Converter={StaticResource BoolToVisibility}}">
+            <TextBlock Text="Rename:" VerticalAlignment="Center" Margin="0,0,8,0" />
+            <TextBox Text="{Binding RenameText, UpdateSourceTrigger=PropertyChanged}"
+                     Width="200" Height="24" VerticalContentAlignment="Center" />
+            <Button Content="Save" Command="{Binding SaveRenameCommand}"
+                    Margin="8,0,4,0" Padding="10,4" />
+            <Button Content="Cancel" Command="{Binding CancelRenameCommand}"
+                    Padding="10,4" />
+        </StackPanel>
+
+        <!-- Row 2: DataGrid -->
+        <DataGrid Grid.Row="2"
+                  ItemsSource="{Binding Positions}"
+                  SelectedItem="{Binding SelectedPosition}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  HeadersVisibility="Column"
+                  SelectionMode="Single">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Order" Binding="{Binding DisplayOrder}"
+                                    Width="60" />
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}"
+                                    Width="180" />
+                <DataGridTextColumn Header="Status"
+                                    Binding="{Binding IsActive, Converter={StaticResource BoolToStatus}}"
+                                    Width="80" />
+                <DataGridTemplateColumn Header="Actions" Width="280">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="Rename" Padding="6,2" Margin="0,0,4,0"
+                                        Command="{Binding DataContext.StartRenameCommand,
+                                            RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                        CommandParameter="{Binding}" />
+                                <Button Content="▲ Up" Padding="6,2" Margin="0,0,4,0"
+                                        Command="{Binding DataContext.MoveUpCommand,
+                                            RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                        CommandParameter="{Binding}" />
+                                <Button Content="▼ Down" Padding="6,2" Margin="0,0,4,0"
+                                        Command="{Binding DataContext.MoveDownCommand,
+                                            RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                        CommandParameter="{Binding}" />
+                                <Button Content="Deactivate" Padding="6,2"
+                                        Command="{Binding DataContext.DeactivateCommand,
+                                            RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                        CommandParameter="{Binding}"
+                                        Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibility}}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

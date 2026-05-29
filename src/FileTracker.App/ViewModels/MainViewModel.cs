@@ -75,4 +75,17 @@ public partial class MainViewModel : ObservableObject, IRecipient<DocumentRegist
     {
         _registerVm.LoadForEdit(document);
     }
+
+    [RelayCommand]
+    private void OpenManagePositions()
+    {
+        var app = (App)System.Windows.Application.Current;
+        var vm = app.Services.GetRequiredService<ManagePositionsViewModel>();
+        var window = new ManagePositionsWindow
+        {
+            DataContext = vm,
+            Owner = System.Windows.Application.Current.MainWindow
+        };
+        window.ShowDialog();
+    }
 }

@@ -22,6 +22,12 @@
         <views:RegisterDocumentView x:Name="RegisterDocumentViewControl"
                                      Grid.Row="0" Grid.ColumnSpan="2" />
 
+        <!-- Positions Management Button -->
+        <Button Grid.Row="0" Grid.Column="1"
+                Content="⚙ Positions" Padding="8,4" Margin="0,0,8,0"
+                VerticalAlignment="Top" HorizontalAlignment="Right"
+                Command="{Binding OpenManagePositionsCommand}" />
+
         <!-- Document List -->
         <DataGrid Grid.Row="1" Grid.Column="0" Margin="8,0,8,8"
                   ItemsSource="{Binding Documents}"
