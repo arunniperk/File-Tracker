@@ -75,6 +75,7 @@ public partial class App : Application
         builder.Services.AddSingleton<IMovementService, MovementService>();
         builder.Services.AddSingleton<IAttachmentRepository, AttachmentRepository>();
         builder.Services.AddSingleton<IAttachmentService, AttachmentService>();
+        builder.Services.AddSingleton<IReportService, ReportService>();
 
         // ViewModels — transient so each window gets fresh state
         builder.Services.AddTransient<MainViewModel>();
@@ -84,6 +85,7 @@ public partial class App : Application
         builder.Services.AddTransient<SearchViewModel>();
         builder.Services.AddTransient<ManagePositionsViewModel>();
         builder.Services.AddTransient<RecordMovementViewModel>();
+        builder.Services.AddTransient<ReportViewModel>();
 
         // Views
         builder.Services.AddSingleton<MainWindow>();

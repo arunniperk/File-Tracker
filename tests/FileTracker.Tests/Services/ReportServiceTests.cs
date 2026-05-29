@@ -5,6 +5,7 @@ using FileTracker.App.Services;
 using FileTracker.Core.Dtos;
 using FileTracker.Core.Models;
 using FileTracker.Data;
+using QuestPDF.Infrastructure;
 
 namespace FileTracker.Tests.Services;
 
@@ -13,6 +14,13 @@ public class ReportServiceTests : IAsyncLifetime
     private SqliteConnection _connection = null!;
     private DocumentRepository _docRepo = null!;
     private ReportService _reportService = null!;
+
+    static ReportServiceTests()
+    {
+        // QuestPDF license must be set once before any PDF generation.
+        // In production this is set in App.xaml.cs; in tests we set it here.
+        QuestPDF.Settings.License = LicenseType.Community;
+    }
 
     private const string CreateSchema = @"
         CREATE TABLE IF NOT EXISTS Documents (

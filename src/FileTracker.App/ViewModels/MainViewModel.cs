@@ -104,6 +104,19 @@ public partial class MainViewModel : ObservableObject, IRecipient<DocumentRegist
         window.ShowDialog();
     }
 
+    [RelayCommand]
+    private void OpenReportWindow()
+    {
+        var app = (App)System.Windows.Application.Current;
+        var vm = app.Services.GetRequiredService<ReportViewModel>();
+        var window = new ReportWindow
+        {
+            DataContext = vm,
+            Owner = System.Windows.Application.Current.MainWindow
+        };
+        window.ShowDialog();
+    }
+
     /// <summary>
     /// Look up the current location name for a document.
     /// Returns the ToPositionName of the most recent movement, or "—" if none.
