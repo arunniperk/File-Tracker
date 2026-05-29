@@ -3,6 +3,9 @@ using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using FileTracker.App.Services;
+using FileTracker.Core.Models;
+using FileTracker.Core.Services;
+using FileTracker.Data;
 
 namespace FileTracker.Tests.Services;
 
@@ -226,5 +229,150 @@ public class BackupServiceTests : IAsyncLifetime
 
         var dbFiles = Directory.GetFiles(extractDir, "*.db", SearchOption.TopDirectoryOnly);
         dbFiles.Should().ContainSingle(f => f.EndsWith("filetracker_backup.db"));
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    //  Plan 04-02 Restore & Integrity Tests (TDD — RED phase)
+    // ══════════════════════════════════════════════════════════════════
+
+    // ── Test 6: RestoreFromBackupAsync extracts backup .zip and replaces DB ──
+
+    [Fact]
+    public async Task RestoreFromBackupAsync_ReplacesDatabaseFromBackup()
+    {
+        // Arrange: create a backup of the current state
+        var destDir = Path.Combine(_tempRoot, "backup_for_restore");
+        Directory.CreateDirectory(destDir);
+        var zipPath = await _backupService.CreateBackupAsync(destDir);
+
+        // Mutate the source database: delete all documents
+        await using var deleteCmd = _connection.CreateCommand();
+        deleteCmd.CommandText = "DELETE FROM Documents;";
+        await deleteCmd.ExecuteNonQueryAsync();
+
+        // Verify mutation took effect
+        await using var verifyCmd = _connection.CreateCommand();
+        verifyCmd.CommandText = "SELECT COUNT(*) FROM Documents;";
+        ((long)(await verifyCmd.ExecuteScalarAsync())!).Should().Be(0);
+
+        // Act: restore from backup
+        await _backupService.RestoreFromBackupAsync(zipPath);
+
+        // Re-open the connection to see the restored data
+        await _connection.CloseAsync();
+        await _connection.OpenAsync();
+
+        // Assert: the 2 documents from the backup are restored
+        await using var assertCmd = _connection.CreateCommand();
+        assertCmd.CommandText = "SELECT COUNT(*) FROM Documents;";
+        var count = (long)(await assertCmd.ExecuteScalarAsync())!;
+        count.Should().Be(2);
+    }
+
+    // ── Test 7: RestoreFromBackupAsync replaces attachments ──
+
+    [Fact]
+    public async Task RestoreFromBackupAsync_ReplacesAttachmentsFromBackup()
+    {
+        // Arrange: create backup with one attachment file
+        var destDir = Path.Combine(_tempRoot, "backup_for_attach_restore");
+        Directory.CreateDirectory(destDir);
+        var zipPath = await _backupService.CreateBackupAsync(destDir);
+
+        // Delete the attachment file from source
+        var existingFile = Path.Combine(_attachmentsDir, "test_attachment.txt");
+        File.Delete(existingFile);
+
+        // Add a new file that should be wiped during restore
+        var newFile = Path.Combine(_attachmentsDir, "new_file.txt");
+        await File.WriteAllTextAsync(newFile, "should be removed");
+
+        // Act: restore from backup
+        await _backupService.RestoreFromBackupAsync(zipPath);
+
+        // Assert: original attachment is restored
+        File.Exists(existingFile).Should().BeTrue();
+
+        // Assert: new file created after backup is gone
+        File.Exists(newFile).Should().BeFalse();
+    }
+
+    // ── Test 8: RestoreFromBackupAsync throws when .zip has no .db ──
+
+    [Fact]
+    public async Task RestoreFromBackupAsync_ThrowsWhenZipHasNoDatabase()
+    {
+        // Arrange: create a .zip with no .db file
+        var invalidZipDir = Path.Combine(_tempRoot, "invalid_zip_content");
+        Directory.CreateDirectory(invalidZipDir);
+        await File.WriteAllTextAsync(Path.Combine(invalidZipDir, "some_file.txt"), "not a db");
+        await File.WriteAllTextAsync(Path.Combine(invalidZipDir, "notes.md"), "just notes");
+
+        var invalidZipPath = Path.Combine(_tempRoot, "no_db_backup.zip");
+        ZipFile.CreateFromDirectory(invalidZipDir, invalidZipPath);
+
+        // Act
+        Func<Task> act = async () => await _backupService.RestoreFromBackupAsync(invalidZipPath);
+
+        // Assert: should throw because no .db file in zip
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*database*");
+    }
+
+    // ── Test 9: RestoreFromBackupAsync throws FileNotFoundException ──
+
+    [Fact]
+    public async Task RestoreFromBackupAsync_ThrowsWhenFileNotFound()
+    {
+        // Arrange
+        var nonexistentPath = Path.Combine(_tempRoot, "does_not_exist.zip");
+
+        // Act
+        Func<Task> act = async () => await _backupService.RestoreFromBackupAsync(nonexistentPath);
+
+        // Assert
+        await act.Should().ThrowAsync<FileNotFoundException>();
+    }
+
+    // ── Test 10: CheckDatabaseIntegrityAsync returns IsOk=true for healthy DB ──
+
+    [Fact]
+    public async Task CheckDatabaseIntegrityAsync_ReturnsOkForHealthyDatabase()
+    {
+        // Act
+        var result = await _backupService.CheckDatabaseIntegrityAsync();
+
+        // Assert
+        result.Should().NotBeNull();
+        result.IsOk.Should().BeTrue();
+        result.Message.Should().Be("ok");
+    }
+
+    // ── Test 11: CheckDatabaseIntegrityAsync returns IsOk=false for corrupted DB ──
+
+    [Fact]
+    public async Task CheckDatabaseIntegrityAsync_ReturnsNotOkForCorruptedDatabase()
+    {
+        // Arrange: create a non-database file and try integrity check on it
+        var corruptRoot = Path.Combine(_tempRoot, "corrupt_db_test");
+        Directory.CreateDirectory(corruptRoot);
+        var corruptDbPath = Path.Combine(corruptRoot, "corrupt.db");
+        await File.WriteAllTextAsync(corruptDbPath, "this is not a valid SQLite database file");
+
+        // SQLite will detect corruption when we run PRAGMA on a non-db file
+        await using var corruptConn = new SqliteConnection($"Data Source={corruptDbPath};Mode=ReadWriteCreate");
+        await corruptConn.OpenAsync();
+
+        // Running any SQL on a non-db file should produce errors via PRAGMA
+        var loggerFactory = new NullLoggerFactory();
+        var corruptService = new BackupService(
+            corruptConn,
+            loggerFactory.CreateLogger<BackupService>());
+
+        // Act
+        var result = await corruptService.CheckDatabaseIntegrityAsync();
+
+        // Assert: a non-database file should not pass integrity check
+        result.IsOk.Should().BeFalse();
     }
 }
