@@ -30,4 +30,11 @@ public interface IBackupService
     /// </summary>
     /// <param name="ct">Cancellation token.</param>
     Task<IntegrityCheckResult> CheckDatabaseIntegrityAsync(CancellationToken ct = default);
+
+    /// <summary>
+    /// Creates an auto-backup to %LocalAppData%\FileTracker\autobackups\ if enabled in configuration.
+    /// Then performs rolling cleanup, keeping only the most recent backups.
+    /// </summary>
+    /// <param name="ct">Cancellation token.</param>
+    Task PerformAutoBackupIfEnabledAsync(CancellationToken ct = default);
 }

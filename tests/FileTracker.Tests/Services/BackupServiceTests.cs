@@ -1,5 +1,6 @@
 using System.IO.Compression;
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using FileTracker.App.Services;
@@ -374,5 +375,179 @@ public class BackupServiceTests : IAsyncLifetime
 
         // Assert: a non-database file should not pass integrity check
         result.IsOk.Should().BeFalse();
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    //  Plan 04-03 Auto-Backup Tests (TDD — RED phase)
+    // ══════════════════════════════════════════════════════════════════
+
+    private IConfiguration CreateConfig(bool autoBackupEnabled = true, int retentionCount = 7)
+    {
+        return new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["Backup:AutoBackupEnabled"] = autoBackupEnabled.ToString(),
+                ["Backup:AutoBackupRetentionCount"] = retentionCount.ToString()
+            })
+            .Build();
+    }
+
+    private async Task<BackupService> CreateBackupServiceWithConfig(
+        SqliteConnection connection,
+        string attachmentsDir,
+        string autoBackupRoot,
+        bool autoBackupEnabled = true,
+        int retentionCount = 7)
+    {
+        var loggerFactory = new NullLoggerFactory();
+        var config = CreateConfig(autoBackupEnabled, retentionCount);
+        return new BackupService(
+            connection,
+            loggerFactory.CreateLogger<BackupService>(),
+            attachmentRoot: attachmentsDir,
+            configuration: config,
+            autoBackupRoot: autoBackupRoot);
+    }
+
+    // ── Test 12: PerformAutoBackupIfEnabledAsync creates backup when enabled ──
+
+    [Fact]
+    public async Task PerformAutoBackupIfEnabledAsync_CreatesBackupWhenEnabled()
+    {
+        // Arrange
+        var autobackupsDir = Path.Combine(_tempRoot, "autobackups");
+        var service = await CreateBackupServiceWithConfig(
+            _connection, _attachmentsDir, autobackupsDir);
+
+        // Act
+        await service.PerformAutoBackupIfEnabledAsync();
+
+        // Assert: a .zip file was created in the autobackups directory
+        var files = Directory.GetFiles(autobackupsDir, "*.zip");
+        files.Should().ContainSingle();
+        files[0].Should().MatchRegex(
+            @"FileTracker_AutoBackup_\d{4}-\d{2}-\d{2}_\d{6}\.zip$");
+    }
+
+    // ── Test 13: PerformAutoBackupIfEnabledAsync does nothing when disabled ──
+
+    [Fact]
+    public async Task PerformAutoBackupIfEnabledAsync_SkipsWhenDisabled()
+    {
+        // Arrange
+        var autobackupsDir = Path.Combine(_tempRoot, "autobackups");
+        Directory.CreateDirectory(autobackupsDir);
+        var service = await CreateBackupServiceWithConfig(
+            _connection, _attachmentsDir, autobackupsDir, autoBackupEnabled: false);
+
+        // Act
+        await service.PerformAutoBackupIfEnabledAsync();
+
+        // Assert: no backup created in autobackups dir
+        var files = Directory.GetFiles(autobackupsDir, "*.zip");
+        files.Should().BeEmpty();
+    }
+
+    // ── Test 14: auto-backup filename matches FileTracker_AutoBackup_ pattern ──
+
+    [Fact]
+    public async Task PerformAutoBackupIfEnabledAsync_UsesCorrectNamingPattern()
+    {
+        // Arrange
+        var autobackupsDir = Path.Combine(_tempRoot, "autobackups");
+        var service = await CreateBackupServiceWithConfig(
+            _connection, _attachmentsDir, autobackupsDir);
+
+        // Act
+        await service.PerformAutoBackupIfEnabledAsync();
+
+        // Assert: filename matches FileTracker_AutoBackup_YYYY-MM-DD_HHmmss.zip
+        var files = Directory.GetFiles(autobackupsDir, "*.zip");
+        files.Should().ContainSingle();
+        Path.GetFileName(files[0]).Should().MatchRegex(
+            @"^FileTracker_AutoBackup_\d{4}-\d{2}-\d{2}_\d{6}\.zip$");
+    }
+
+    // ── Test 15: Rolling cleanup deletes oldest when count exceeds retention ──
+
+    [Fact]
+    public async Task PerformAutoBackupIfEnabledAsync_CleanupRemovesOldestBeyondRetention()
+    {
+        // Arrange: pre-populate autobackups dir with 10 old .zip files
+        var autobackupsDir = Path.Combine(_tempRoot, "autobackups");
+        Directory.CreateDirectory(autobackupsDir);
+
+        var now = DateTime.Now;
+        for (int i = 0; i < 10; i++)
+        {
+            var filePath = Path.Combine(autobackupsDir,
+                $"FileTracker_AutoBackup_{now.AddHours(-(10 - i)):yyyy-MM-dd_HHmmss}.zip");
+            await File.WriteAllTextAsync(filePath, "dummy backup content");
+            // Ensure distinct creation times for ordering
+            File.SetCreationTime(filePath, now.AddHours(-(10 - i)));
+        }
+
+        var service = await CreateBackupServiceWithConfig(
+            _connection, _attachmentsDir, autobackupsDir);
+
+        // Act
+        await service.PerformAutoBackupIfEnabledAsync();
+
+        // Assert: at most 7 .zip files remain (10 pre-existing + 1 new = 11 → cleanup to 7)
+        var files = Directory.GetFiles(autobackupsDir, "*.zip");
+        files.Length.Should().Be(7, "rolling cleanup should keep only the 7 most recent backups");
+    }
+
+    // ── Test 16: Rolling cleanup keeps exactly 7 most recent ──
+
+    [Fact]
+    public async Task PerformAutoBackupIfEnabledAsync_CleanupKeepsExactly7MostRecent()
+    {
+        // Arrange: pre-populate with 7 files, call auto-backup (creates 8th, trims to 7)
+        var autobackupsDir = Path.Combine(_tempRoot, "autobackups");
+        Directory.CreateDirectory(autobackupsDir);
+
+        var now = DateTime.Now;
+        for (int i = 0; i < 7; i++)
+        {
+            var filePath = Path.Combine(autobackupsDir,
+                $"FileTracker_AutoBackup_{now.AddHours(-(7 - i)):yyyy-MM-dd_HHmmss}.zip");
+            await File.WriteAllTextAsync(filePath, "dummy backup content");
+            File.SetCreationTime(filePath, now.AddHours(-(7 - i)));
+        }
+
+        // The oldest file (first created) should be the one at -7 hours
+        var oldestFile = Path.Combine(autobackupsDir,
+            $"FileTracker_AutoBackup_{now.AddHours(-7):yyyy-MM-dd_HHmmss}.zip");
+
+        var service = await CreateBackupServiceWithConfig(
+            _connection, _attachmentsDir, autobackupsDir);
+
+        // Act
+        await service.PerformAutoBackupIfEnabledAsync();
+
+        // Assert: exactly 7 .zip files remain
+        var files = Directory.GetFiles(autobackupsDir, "*.zip");
+        files.Length.Should().Be(7, "rolling cleanup should keep exactly 7 most recent backups");
+
+        // The oldest pre-existing file should be gone
+        File.Exists(oldestFile).Should().BeFalse(
+            "the oldest pre-existing backup should be deleted");
+    }
+
+    // ── Test 17: Rolling cleanup handles empty autobackups directory ──
+
+    [Fact]
+    public async Task PerformAutoBackupIfEnabledAsync_CleanupHandlesEmptyDirectory()
+    {
+        // Arrange: ensure autobackups dir exists but is empty
+        var autobackupsDir = Path.Combine(_tempRoot, "autobackups");
+        Directory.CreateDirectory(autobackupsDir);
+
+        var service = await CreateBackupServiceWithConfig(
+            _connection, _attachmentsDir, autobackupsDir);
+
+        // Act/Assert: should not throw
+        await service.PerformAutoBackupIfEnabledAsync();
     }
 }

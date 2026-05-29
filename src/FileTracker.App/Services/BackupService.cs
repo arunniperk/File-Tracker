@@ -1,6 +1,7 @@
 using System.IO;
 using System.IO.Compression;
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using FileTracker.Core.Models;
 using FileTracker.Core.Services;
@@ -17,18 +18,27 @@ public class BackupService : IBackupService
     private readonly SqliteConnection _db;
     private readonly ILogger<BackupService> _logger;
     private readonly string _attachmentRoot;
+    private readonly string _autoBackupRoot;
+    private readonly IConfiguration? _config;
 
     public BackupService(
         SqliteConnection db,
         ILogger<BackupService> logger,
-        string? attachmentRoot = null)
+        string? attachmentRoot = null,
+        IConfiguration? configuration = null,
+        string? autoBackupRoot = null)
     {
         _db = db;
         _logger = logger;
+        _config = configuration;
         _attachmentRoot = attachmentRoot
             ?? Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "FileTracker", "attachments");
+        _autoBackupRoot = autoBackupRoot
+            ?? Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "FileTracker", "autobackups");
     }
 
     /// <inheritdoc />
@@ -331,6 +341,12 @@ public class BackupService : IBackupService
                 Message = ex.Message
             };
         }
+    }
+
+    /// <inheritdoc />
+    public async Task PerformAutoBackupIfEnabledAsync(CancellationToken ct = default)
+    {
+        throw new NotImplementedException();
     }
 
     /// <summary>
