@@ -9,7 +9,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Document Registration
 
-- [ ] **REG-01**: User can register an incoming document with: sender/from, subject, date received, file number (auto-generated), department, priority (Normal/Urgent/Confidential), document type (Letter/Memo/Notice/File/Other), and remarks
+- [x] **REG-01**: User can register an incoming document with: sender/from, subject, date received, file number (auto-generated), department, priority (Normal/Urgent/Confidential), document type (Letter/Memo/Notice/File/Other), and remarks
 - [ ] **REG-02**: User can register an outgoing document with: recipient/to, subject, date sent, file number, department, document type, and remarks
 - [ ] **REG-03**: File numbers are auto-generated in a configurable format (e.g., IITDH/REG/2026/0001)
 - [ ] **REG-04**: User can edit a registered document's metadata after entry
@@ -82,7 +82,7 @@ Deferred to future release. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| REG-01 | Phase 1 | Pending |
+| REG-01 | Phase 1 | Complete |
 | REG-02 | Phase 1 | Pending |
 | REG-03 | Phase 1 | Pending |
 | REG-04 | Phase 1 | Pending |
