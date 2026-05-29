@@ -65,8 +65,13 @@ Plans:
   3. Report includes breakdowns by document type, by department, and by priority for the selected period
   4. User can export the report as a formatted PDF and export document data as Excel for further processing
   5. User can attach scanned document files (PDF, JPG, PNG) to any registered document and open them in the default system viewer
-**Plans**: TBD
+**Plans**: 3 plans
 **UI hint**: yes
+
+Plans:
+- [ ] 03-01-PLAN.md — Operational dashboard with pending/recent/overdue tracking, TabControl layout (DASH-01, DASH-02, DASH-03)
+- [ ] 03-02-PLAN.md — Document attachments with filesystem storage and UI integration (ATCH-01, ATCH-02, ATCH-03)
+- [ ] 03-03-PLAN.md — Monthly reports with PDF (QuestPDF) and Excel (ClosedXML) export (RPT-01, RPT-02, RPT-03, RPT-04)
 
 ### Phase 4: Data Safety & Management
 **Goal**: Staff trust their data is safe with one-click backup and restore, automatic daily backups, and startup integrity verification.
@@ -88,5 +93,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Foundation — Data Model & Core Registration | 3/3 | Complete   | 2026-05-29 |
 | 2. Search & Movement Tracking | 3/3 | Complete   | 2026-05-29 |
-| 3. Dashboard, Reports & Attachments | 0/TBD | Not started | - |
+| 3. Dashboard, Reports & Attachments | 0/3 | Not started | - |
 | 4. Data Safety & Management | 0/TBD | Not started | - |
