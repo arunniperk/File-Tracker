@@ -6,26 +6,36 @@ using Microsoft.Data.Sqlite;
 using FileTracker.Core.Dtos;
 using FileTracker.Core.Models;
 using FileTracker.Core.Services;
+using System.ComponentModel.DataAnnotations;
 
 namespace FileTracker.App.ViewModels;
 
-public partial class RegisterDocumentViewModel : ObservableObject
+public partial class RegisterDocumentViewModel : ObservableValidator
 {
     private readonly IDocumentService _docService;
+    private bool _isClearing;
 
     [ObservableProperty]
+    [NotifyDataErrorInfo]
+    [Required(ErrorMessage = "Subject is required")]
     private string _subject = string.Empty;
 
     [ObservableProperty]
+    [NotifyDataErrorInfo]
+    [Required(ErrorMessage = "File number is required")]
     private string _originalFileNumber = string.Empty;
 
     [ObservableProperty]
+    [NotifyDataErrorInfo]
+    [Required(ErrorMessage = "This field is required")]
     private string _senderOrRecipient = string.Empty;
 
     [ObservableProperty]
     private string _remarks = string.Empty;
 
     [ObservableProperty]
+    [NotifyDataErrorInfo]
+    [Required(ErrorMessage = "Date is required")]
     private DateTime _documentDate = DateTime.Today;
 
     [ObservableProperty]
@@ -34,15 +44,45 @@ public partial class RegisterDocumentViewModel : ObservableObject
     [ObservableProperty]
     private string _errorMessage = string.Empty;
 
+    [ObservableProperty]
+    private bool _hasUnsavedChanges;
+
     public RegisterDocumentViewModel(IDocumentService docService)
     {
         _docService = docService;
     }
 
-    [RelayCommand]
+    partial void OnSubjectChanged(string value)
+    {
+        if (!_isClearing) HasUnsavedChanges = true;
+        SubmitCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnOriginalFileNumberChanged(string value)
+    {
+        if (!_isClearing) HasUnsavedChanges = true;
+        SubmitCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnSenderOrRecipientChanged(string value)
+    {
+        if (!_isClearing) HasUnsavedChanges = true;
+        SubmitCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnDocumentDateChanged(DateTime value)
+    {
+        if (!_isClearing) HasUnsavedChanges = true;
+        SubmitCommand.NotifyCanExecuteChanged();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanSubmit))]
     private async Task SubmitAsync()
     {
         ErrorMessage = string.Empty;
+
+        ValidateAllProperties();
+        if (HasErrors) return;
 
         var dto = new RegisterDocumentDto
         {
@@ -71,14 +111,25 @@ public partial class RegisterDocumentViewModel : ObservableObject
         }
     }
 
+    private bool CanSubmit()
+    {
+        return !string.IsNullOrWhiteSpace(Subject)
+            && !string.IsNullOrWhiteSpace(OriginalFileNumber)
+            && !string.IsNullOrWhiteSpace(SenderOrRecipient);
+    }
+
     private void ClearForm()
     {
+        _isClearing = true;
+        HasUnsavedChanges = false;
         Subject = string.Empty;
         OriginalFileNumber = string.Empty;
         SenderOrRecipient = string.Empty;
         Remarks = string.Empty;
         DocumentDate = DateTime.Today;
         ErrorMessage = string.Empty;
+        ClearErrors();
+        _isClearing = false;
     }
 }
 

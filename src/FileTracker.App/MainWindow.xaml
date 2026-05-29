@@ -25,6 +25,8 @@
                   HeadersVisibility="Column">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="40" />
+                <DataGridTextColumn Header="Tracking ID" Binding="{Binding TrackingId}" Width="90" />
+                <DataGridTextColumn Header="Direction" Binding="{Binding Direction}" Width="80" />
                 <DataGridTextColumn Header="File Number" Binding="{Binding OriginalFileNumber}" Width="120" />
                 <DataGridTextColumn Header="Subject" Binding="{Binding Subject}" Width="200" />
                 <DataGridTextColumn Header="Date" Binding="{Binding DocumentDate, StringFormat={}{0:dd-MMM-yyyy}}" Width="100" />

@@ -9,13 +9,17 @@ namespace FileTracker.App.ViewModels;
 public partial class MainViewModel : ObservableObject, IRecipient<DocumentRegisteredMessage>
 {
     private readonly IDocumentService _docService;
+    private readonly RegisterDocumentViewModel _registerVm;
 
     [ObservableProperty]
     private ObservableCollection<Document> _documents = new();
 
-    public MainViewModel(IDocumentService docService)
+    public bool HasUnsavedChanges => _registerVm.HasUnsavedChanges;
+
+    public MainViewModel(IDocumentService docService, RegisterDocumentViewModel registerVm)
     {
         _docService = docService;
+        _registerVm = registerVm;
         WeakReferenceMessenger.Default.Register(this);
         _ = LoadDocumentsAsync();
     }

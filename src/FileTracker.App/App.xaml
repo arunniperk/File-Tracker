@@ -5,5 +5,8 @@
              xmlns:converters="clr-namespace:FileTracker.App.Converters">
     <Application.Resources>
         <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:BoolInvertVisibilityConverter x:Key="BoolInvertVisibilityConverter" />
+        <converters:BoolInvertConverter x:Key="BoolInvertConverter" />
     </Application.Resources>
 </Application>
