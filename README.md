@@ -86,6 +86,10 @@ Faculty/Departments → Assistant Registrar → Deputy Registrar → Registrar �
 
 With intermediate positions: Assistant Executive Engineer, Executive Engineer
 
+## Developer
+
+Arun Verma, Assistant Registrar, IIT Dharwad
+
 ## License
 
 Internal use — IIT Dharwad Registrar Office.
