@@ -14,38 +14,28 @@ public partial class MainViewModel : ObservableObject, IRecipient<DocumentRegist
     private readonly IDocumentService _docService;
     private readonly RegisterDocumentViewModel _registerVm;
 
-    [ObservableProperty]
-    private ObservableCollection<Document> _documents = new();
+    public SearchViewModel SearchVm { get; }
 
     [ObservableProperty]
     private Document? _selectedDocument;
 
     public bool HasUnsavedChanges => _registerVm.HasUnsavedChanges;
 
-    public MainViewModel(IDocumentService docService, RegisterDocumentViewModel registerVm)
+    public MainViewModel(
+        IDocumentService docService,
+        RegisterDocumentViewModel registerVm,
+        SearchViewModel searchVm)
     {
         _docService = docService;
         _registerVm = registerVm;
+        SearchVm = searchVm;
         WeakReferenceMessenger.Default.Register(this);
-        _ = LoadDocumentsAsync();
+        SearchVm.SearchCommand.Execute(null);
     }
 
     public void Receive(DocumentRegisteredMessage message)
     {
-        _ = LoadDocumentsAsync();
-    }
-
-    private async Task LoadDocumentsAsync()
-    {
-        try
-        {
-            var docs = await _docService.GetAllAsync();
-            Documents = new ObservableCollection<Document>(docs);
-        }
-        catch (Exception)
-        {
-            // Logged by service layer
-        }
+        SearchVm.SearchCommand.Execute(null);
     }
 
     [RelayCommand]

@@ -74,6 +74,7 @@ public partial class App : Application
         builder.Services.AddTransient<MainViewModel>();
         builder.Services.AddTransient<RegisterDocumentViewModel>();
         builder.Services.AddTransient<DocumentDetailViewModel>();
+        builder.Services.AddTransient<SearchViewModel>();
         builder.Services.AddTransient<ManagePositionsViewModel>();
 
         // Views
