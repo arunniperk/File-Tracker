@@ -40,13 +40,16 @@ public class DocumentService : IDocumentService
             throw new ArgumentException("Document date is required.", nameof(dto.DocumentDate));
         }
 
-        // Generate placeholder TrackingId (real tracking ID arrives in Plan 02)
-        var document = dto.ToEntity(null);
-
         await using var transaction = await _db.BeginTransactionAsync();
         try
         {
-            document.Id = await _repository.InsertAsync(document);
+            // Generate tracking ID atomically within the same transaction
+            var sequence = await _repository.GetNextSequenceAsync(dto.DocumentDate.Year, transaction);
+            var trackingId = $"{sequence:D4}/{dto.DocumentDate.Year}";
+
+            var document = dto.ToEntity(trackingId);
+            document.Id = await _repository.InsertAsync(document, transaction);
+
             await transaction.CommitAsync();
             return document;
         }

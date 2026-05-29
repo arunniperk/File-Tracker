@@ -38,11 +38,20 @@ public class DatabaseInitializer
             CREATE UNIQUE INDEX IF NOT EXISTS IX_Documents_OriginalFileNumber
             ON Documents(OriginalFileNumber);";
 
+        const string createTrackingSequence = @"
+            CREATE TABLE IF NOT EXISTS TrackingSequence (
+                Year INTEGER NOT NULL PRIMARY KEY,
+                LastNumber INTEGER NOT NULL DEFAULT 0
+            );";
+
         await using var cmd = _db.CreateCommand();
         cmd.CommandText = createDocumentsTable;
         await cmd.ExecuteNonQueryAsync();
 
         cmd.CommandText = createUniqueIndex;
+        await cmd.ExecuteNonQueryAsync();
+
+        cmd.CommandText = createTrackingSequence;
         await cmd.ExecuteNonQueryAsync();
 
         _logger.LogInformation("Database schema initialized successfully.");

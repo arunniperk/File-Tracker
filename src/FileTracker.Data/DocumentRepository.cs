@@ -1,3 +1,4 @@
+using System.Data;
 using Dapper;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
@@ -16,7 +17,7 @@ public class DocumentRepository : IDocumentRepository
         _logger = logger;
     }
 
-    public async Task<int> InsertAsync(Document document)
+    public async Task<int> InsertAsync(Document document, IDbTransaction? transaction = null)
     {
         const string sql = @"
             INSERT INTO Documents
@@ -39,7 +40,19 @@ public class DocumentRepository : IDocumentRepository
             document.Remarks,
             CreatedAt = document.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss"),
             UpdatedAt = document.UpdatedAt.ToString("yyyy-MM-dd HH:mm:ss")
-        });
+        }, transaction);
+    }
+
+    public async Task<int> GetNextSequenceAsync(int year, IDbTransaction transaction)
+    {
+        const string upsertSql = @"
+            INSERT INTO TrackingSequence (Year, LastNumber)
+            VALUES (@Year, 1)
+            ON CONFLICT(Year) DO UPDATE SET LastNumber = LastNumber + 1
+            RETURNING LastNumber;";
+
+        return await _db.QuerySingleAsync<int>(upsertSql,
+            new { Year = year }, transaction);
     }
 
     public async Task<Document?> GetByIdAsync(int id)
