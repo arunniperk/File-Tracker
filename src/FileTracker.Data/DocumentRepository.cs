@@ -196,4 +196,63 @@ public class DocumentRepository : IDocumentRepository
 
         return (results.AsList(), totalCount);
     }
+
+    public async Task<IReadOnlyList<OfficerPendingCountDto>> GetPendingByOfficerAsync()
+    {
+        const string sql = @"
+            SELECT tp.Name AS OfficerName, COUNT(*) AS DocumentCount
+            FROM Movements m
+            JOIN Positions tp ON m.ToPositionId = tp.Id
+            WHERE m.Id IN (
+                SELECT MAX(m2.Id) FROM Movements m2 GROUP BY m2.DocumentId
+            )
+            GROUP BY m.ToPositionId
+            ORDER BY DocumentCount DESC;";
+
+        var results = await _db.QueryAsync<OfficerPendingCountDto>(sql);
+        return results.AsList();
+    }
+
+    public async Task<IReadOnlyList<Document>> GetRecentAsync(int days = 7)
+    {
+        var dateFilter = $"-{days} days";
+        var sql = $@"
+            SELECT d.Id, d.Direction, d.Sender, d.Recipient, d.Subject, d.DocumentDate,
+                   d.OriginalFileNumber, d.TrackingId, d.Remarks, d.CreatedAt, d.UpdatedAt, d.IsDeleted,
+                   COALESCE(tp.Name, '\u2014') AS CurrentLocation
+            FROM Documents d
+            LEFT JOIN (
+                SELECT DocumentId, ToPositionId,
+                       ROW_NUMBER() OVER (PARTITION BY DocumentId ORDER BY MovementDate DESC, Id DESC) AS rn
+                FROM Movements
+            ) latest ON d.Id = latest.DocumentId AND latest.rn = 1
+            LEFT JOIN Positions tp ON latest.ToPositionId = tp.Id
+            WHERE d.IsDeleted = 0 AND d.CreatedAt >= datetime('now', @DateFilter)
+            ORDER BY d.CreatedAt DESC;";
+
+        var results = await _db.QueryAsync<Document>(sql, new { DateFilter = dateFilter });
+        return results.AsList();
+    }
+
+    public async Task<IReadOnlyList<Document>> GetOverdueAsync(int thresholdDays = 7)
+    {
+        var dateFilter = $"-{thresholdDays} days";
+        var sql = $@"
+            SELECT d.Id, d.Direction, d.Sender, d.Recipient, d.Subject, d.DocumentDate,
+                   d.OriginalFileNumber, d.TrackingId, d.Remarks, d.CreatedAt, d.UpdatedAt, d.IsDeleted,
+                   COALESCE(tp.Name, '\u2014') AS CurrentLocation
+            FROM Documents d
+            INNER JOIN (
+                SELECT DocumentId, ToPositionId, MovementDate,
+                       ROW_NUMBER() OVER (PARTITION BY DocumentId ORDER BY MovementDate DESC, Id DESC) AS rn
+                FROM Movements
+            ) latest ON d.Id = latest.DocumentId AND latest.rn = 1
+            LEFT JOIN Positions tp ON latest.ToPositionId = tp.Id
+            WHERE d.IsDeleted = 0
+              AND latest.MovementDate < datetime('now', @DateFilter)
+            ORDER BY d.CreatedAt DESC;";
+
+        var results = await _db.QueryAsync<Document>(sql, new { DateFilter = dateFilter });
+        return results.AsList();
+    }
 }
