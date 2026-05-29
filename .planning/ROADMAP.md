@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation — Data Model & Core Registration** - SQLite database, MVVM architecture, and incoming/outgoing document registration with auto-generated file numbers and audit trails (completed 2026-05-29)
 - [x] **Phase 2: Search & Movement Tracking** - Document search with pagination, configurable officer hierarchy, and append-only movement tracking with current status (completed 2026-05-29)
-- [ ] **Phase 3: Dashboard, Reports & Attachments** - Operational dashboard with pending/overdue tracking, monthly summary reports with PDF/Excel export, and scanned document attachments
+- [x] **Phase 3: Dashboard, Reports & Attachments** - Operational dashboard with pending/overdue tracking, monthly summary reports with PDF/Excel export, and scanned document attachments (completed 2026-05-29)
 - [ ] **Phase 4: Data Safety & Management** - One-click backup/restore, automatic daily backups on close, and database integrity checks on startup
 
 ## Phase Details
@@ -71,7 +71,7 @@ Plans:
 Plans:
 - [x] 03-01-PLAN.md — Operational dashboard with pending/recent/overdue tracking, TabControl layout (DASH-01, DASH-02, DASH-03)
 - [x] 03-02-PLAN.md — Document attachments with filesystem storage and UI integration (ATCH-01, ATCH-02, ATCH-03)
-- [ ] 03-03-PLAN.md — Monthly reports with PDF (QuestPDF) and Excel (ClosedXML) export (RPT-01, RPT-02, RPT-03, RPT-04)
+- [x] 03-03-PLAN.md — Monthly reports with PDF (QuestPDF) and Excel (ClosedXML) export (RPT-01, RPT-02, RPT-03, RPT-04)
 
 ### Phase 4: Data Safety & Management
 **Goal**: Staff trust their data is safe with one-click backup and restore, automatic daily backups, and startup integrity verification.
@@ -93,5 +93,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Foundation — Data Model & Core Registration | 3/3 | Complete   | 2026-05-29 |
 | 2. Search & Movement Tracking | 3/3 | Complete   | 2026-05-29 |
-| 3. Dashboard, Reports & Attachments | 2/3 | In Progress|  |
+| 3. Dashboard, Reports & Attachments | 3/3 | Complete   | 2026-05-29 |
 | 4. Data Safety & Management | 0/TBD | Not started | - |

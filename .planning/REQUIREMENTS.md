@@ -32,10 +32,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Monthly Reports
 
-- [ ] **RPT-01**: User can generate a monthly summary report showing all incoming and outgoing documents for a selected month/year
-- [ ] **RPT-02**: Report shows document count by type, by department, and by priority for the period
-- [ ] **RPT-03**: User can export the report as PDF
-- [ ] **RPT-04**: User can export document data as Excel for further processing
+- [x] **RPT-01**: User can generate a monthly summary report showing all incoming and outgoing documents for a selected month/year
+- [x] **RPT-02**: Report shows document count by type, by department, and by priority for the period
+- [x] **RPT-03**: User can export the report as PDF
+- [x] **RPT-04**: User can export document data as Excel for further processing
 
 ### Document Attachments
 
@@ -96,10 +96,10 @@ Deferred to future release. Tracked but not in current roadmap.
 | MOVE-03 | Phase 2 | Complete |
 | MOVE-04 | Phase 2 | Complete |
 | MOVE-05 | Phase 2 | Complete |
-| RPT-01 | Phase 3 | Pending |
-| RPT-02 | Phase 3 | Pending |
-| RPT-03 | Phase 3 | Pending |
-| RPT-04 | Phase 3 | Pending |
+| RPT-01 | Phase 3 | Complete |
+| RPT-02 | Phase 3 | Complete |
+| RPT-03 | Phase 3 | Complete |
+| RPT-04 | Phase 3 | Complete |
 | ATCH-01 | Phase 3 | Complete |
 | ATCH-02 | Phase 3 | Complete |
 | ATCH-03 | Phase 3 | Complete |
