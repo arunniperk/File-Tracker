@@ -50,9 +50,22 @@ public class BackupService : IBackupService
                 $"Destination folder does not exist: {destinationFolder}");
         }
 
+        return await CreateBackupToFolderAsync(
+            destinationFolder, "FileTracker_Backup_", ct);
+    }
+
+    /// <summary>
+    /// Core backup logic — creates a timestamped .zip in the destination folder
+    /// with the specified filename prefix. Shared by manual and auto-backup.
+    /// </summary>
+    private async Task<string> CreateBackupToFolderAsync(
+        string destinationFolder,
+        string fileNamePrefix,
+        CancellationToken ct)
+    {
         ct.ThrowIfCancellationRequested();
 
-        var backupFileName = $"FileTracker_Backup_{DateTime.Now:yyyy-MM-dd_HHmmss}.zip";
+        var backupFileName = $"{fileNamePrefix}{DateTime.Now:yyyy-MM-dd_HHmmss}.zip";
         var zipPath = Path.Combine(destinationFolder, backupFileName);
 
         // Create a temp staging directory with a unique name
@@ -346,7 +359,91 @@ public class BackupService : IBackupService
     /// <inheritdoc />
     public async Task PerformAutoBackupIfEnabledAsync(CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        // D-08: Read configuration with defaults (enabled=true, retention=7)
+        var enabled = _config?.GetValue<bool>("Backup:AutoBackupEnabled", true) ?? true;
+        var retentionCount = _config?.GetValue<int>("Backup:AutoBackupRetentionCount", 7) ?? 7;
+
+        if (!enabled)
+        {
+            _logger.LogInformation("Auto-backup is disabled, skipping.");
+            return;
+        }
+
+        ct.ThrowIfCancellationRequested();
+
+        // Ensure the autobackups directory exists
+        Directory.CreateDirectory(_autoBackupRoot);
+
+        // D-06: Create auto-backup with FileTracker_AutoBackup_ prefix
+        string backupPath;
+        try
+        {
+            backupPath = await CreateBackupToFolderAsync(
+                _autoBackupRoot, "FileTracker_AutoBackup_", ct);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Auto-backup creation failed");
+            // Don't block app exit — return without cleanup
+            return;
+        }
+
+        _logger.LogInformation("Auto-backup created: {Path}", backupPath);
+
+        // D-07: Rolling cleanup — keep only the most recent backups
+        CleanupOldAutoBackups(_autoBackupRoot, retentionCount);
+    }
+
+    /// <summary>
+    /// Performs rolling cleanup of auto-backup .zip files, keeping only the
+    /// most recent <paramref name="keepCount"/> files.
+    /// </summary>
+    private void CleanupOldAutoBackups(string directory, int keepCount)
+    {
+        try
+        {
+            var files = Directory.GetFiles(directory, "*.zip");
+            if (files.Length <= keepCount)
+            {
+                _logger.LogDebug("Auto-backup cleanup: {Count} files, retention limit {Limit} — nothing to delete",
+                    files.Length, keepCount);
+                return;
+            }
+
+            // Sort by creation time descending (most recent first)
+            var orderedFiles = files
+                .Select(f => new FileInfo(f))
+                .OrderByDescending(f => f.CreationTime)
+                .ToList();
+
+            // Skip the most recent keepCount files, delete the rest
+            var toDelete = orderedFiles.Skip(keepCount).ToList();
+            foreach (var file in toDelete)
+            {
+                try
+                {
+                    File.Delete(file.FullName);
+                    _logger.LogInformation("Deleted old auto-backup: {Path}", file.FullName);
+                }
+                catch (Exception ex)
+                {
+                    // Don't fail the entire cleanup for one file deletion failure
+                    _logger.LogWarning(ex, "Failed to delete old auto-backup: {Path}", file.FullName);
+                }
+            }
+
+            _logger.LogInformation(
+                "Auto-backup cleanup completed: deleted {DeletedCount} old backups, {KeptCount} retained",
+                toDelete.Count, keepCount);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Auto-backup cleanup encountered an error");
+        }
     }
 
     /// <summary>
