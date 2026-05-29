@@ -70,6 +70,54 @@ public class DatabaseInitializer
         cmd.CommandText = createDocumentAudit;
         await cmd.ExecuteNonQueryAsync();
 
+        const string createPositionsTable = @"
+            CREATE TABLE IF NOT EXISTS Positions (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                Name TEXT NOT NULL,
+                DisplayOrder INTEGER NOT NULL DEFAULT 0,
+                IsActive INTEGER NOT NULL DEFAULT 1
+            );
+            CREATE INDEX IF NOT EXISTS IX_Positions_DisplayOrder
+            ON Positions(DisplayOrder);";
+
+        cmd.CommandText = createPositionsTable;
+        await cmd.ExecuteNonQueryAsync();
+
+        // Seed default positions (D-05) — idempotent: only if table is empty
+        const string seedCheck = @"
+            INSERT INTO Positions (Name, DisplayOrder, IsActive)
+            SELECT 'Faculty/Department', 1, 1
+            WHERE NOT EXISTS (SELECT 1 FROM Positions LIMIT 1);";
+
+        cmd.CommandText = seedCheck;
+        await cmd.ExecuteNonQueryAsync();
+
+        const string seedPositions = @"
+            INSERT INTO Positions (Name, DisplayOrder, IsActive)
+            SELECT 'Assistant Registrar', 2, 1
+            WHERE NOT EXISTS (SELECT 1 FROM Positions WHERE Name = 'Assistant Registrar');
+            INSERT INTO Positions (Name, DisplayOrder, IsActive)
+            SELECT 'Deputy Registrar', 3, 1
+            WHERE NOT EXISTS (SELECT 1 FROM Positions WHERE Name = 'Deputy Registrar');
+            INSERT INTO Positions (Name, DisplayOrder, IsActive)
+            SELECT 'Assistant Executive Engr', 4, 1
+            WHERE NOT EXISTS (SELECT 1 FROM Positions WHERE Name = 'Assistant Executive Engr');
+            INSERT INTO Positions (Name, DisplayOrder, IsActive)
+            SELECT 'Executive Engineer', 5, 1
+            WHERE NOT EXISTS (SELECT 1 FROM Positions WHERE Name = 'Executive Engineer');
+            INSERT INTO Positions (Name, DisplayOrder, IsActive)
+            SELECT 'Registrar', 6, 1
+            WHERE NOT EXISTS (SELECT 1 FROM Positions WHERE Name = 'Registrar');
+            INSERT INTO Positions (Name, DisplayOrder, IsActive)
+            SELECT 'Dean Admin', 7, 1
+            WHERE NOT EXISTS (SELECT 1 FROM Positions WHERE Name = 'Dean Admin');
+            INSERT INTO Positions (Name, DisplayOrder, IsActive)
+            SELECT 'Director', 8, 1
+            WHERE NOT EXISTS (SELECT 1 FROM Positions WHERE Name = 'Director');";
+
+        cmd.CommandText = seedPositions;
+        await cmd.ExecuteNonQueryAsync();
+
         _logger.LogInformation("Database schema initialized successfully.");
     }
 }
