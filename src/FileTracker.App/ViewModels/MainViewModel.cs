@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Forms;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -158,6 +159,67 @@ public partial class MainViewModel : ObservableObject, IRecipient<DocumentRegist
             System.Windows.MessageBox.Show(
                 $"Backup failed: {ex.Message}",
                 "Backup Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+    }
+
+    /// <summary>
+    /// Restores database and attachments from a backup .zip file.
+    /// Shows file picker → destructive warning (D-04) → restore → restart (D-05).
+    /// </summary>
+    [RelayCommand]
+    private async Task RestoreAsync()
+    {
+        try
+        {
+            // Step 1: File picker for .zip backup files
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Backup Files (*.zip)|*.zip",
+                Title = "Select Backup File to Restore",
+                CheckFileExists = true
+            };
+
+            if (dialog.ShowDialog() != true || string.IsNullOrWhiteSpace(dialog.FileName))
+            {
+                return; // User cancelled
+            }
+
+            // Step 2: Destructive warning per D-04
+            var warningResult = System.Windows.MessageBox.Show(
+                "This will replace ALL current data with the backup contents.\n\nThe application will restart after restore.\n\nThis cannot be undone. Continue?",
+                "Confirm Restore",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (warningResult != MessageBoxResult.Yes)
+            {
+                return; // User declined
+            }
+
+            // Step 3: Execute restore
+            await _backupService.RestoreFromBackupAsync(dialog.FileName);
+
+            // Step 4: Success + restart per D-05
+            System.Windows.MessageBox.Show(
+                "Restore complete. The application will now restart.",
+                "Restore Complete",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+
+            System.Windows.Application.Current.Shutdown();
+            var processPath = Environment.ProcessPath;
+            if (!string.IsNullOrEmpty(processPath))
+            {
+                System.Diagnostics.Process.Start(processPath);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show(
+                $"Restore failed: {ex.Message}",
+                "Restore Error",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
         }

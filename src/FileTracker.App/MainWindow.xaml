@@ -37,6 +37,7 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
@@ -92,11 +93,15 @@
                                 Command="{Binding BackupCommand}"
                                 Width="75" Margin="8,4,4,0" />
 
-                        <Button Grid.Row="1" Grid.Column="8" Content="⚙ Positions"
+                        <Button Grid.Row="1" Grid.Column="8" Content="📂 Restore"
+                                Command="{Binding RestoreCommand}"
+                                Width="75" Margin="0,4,4,0" />
+
+                        <Button Grid.Row="1" Grid.Column="9" Content="⚙ Positions"
                                 Command="{Binding OpenManagePositionsCommand}"
                                 Width="80" Margin="8,4,4,0" />
 
-                        <TextBlock Grid.Row="1" Grid.Column="9"
+                        <TextBlock Grid.Row="1" Grid.Column="10"
                                    Text="{Binding SearchVm.PageIndicator}"
                                    VerticalAlignment="Center" Margin="12,4,0,0"
                                    FontWeight="SemiBold" />

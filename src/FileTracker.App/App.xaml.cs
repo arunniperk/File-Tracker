@@ -102,6 +102,23 @@ public partial class App : Application
             .CreateInstance<DatabaseInitializer>(_host.Services);
         await initializer.InitializeAsync();
 
+        // Database integrity check (D-09, D-10)
+        var integrityResult = await initializer.IntegrityCheckAsync();
+        if (!integrityResult.IsOk)
+        {
+            Log.Logger.Error("Database integrity check FAILED: {Message}", integrityResult.Message);
+            var dialogResult = MessageBox.Show(
+                $"Database corruption detected!\n\n{integrityResult.Message}\n\nWould you like to restore from a backup?",
+                "Database Corruption Detected",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Error);
+            if (dialogResult == MessageBoxResult.Yes)
+            {
+                // The restore flow will be triggered by the user via Restore button
+                // App continues loading — user is warned and can restore manually
+            }
+        }
+
         // Show main window
         var mainWindow = _host.Services.GetRequiredService<MainWindow>();
         mainWindow.Show();
