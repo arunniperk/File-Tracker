@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using System.Windows;
+using System.Windows.Forms;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -14,6 +16,7 @@ public partial class MainViewModel : ObservableObject, IRecipient<DocumentRegist
     private readonly IDocumentService _docService;
     private readonly RegisterDocumentViewModel _registerVm;
     private readonly IMovementService _movementService;
+    private readonly IBackupService _backupService;
 
     public SearchViewModel SearchVm { get; }
     public DashboardViewModel DashboardVm { get; }
@@ -31,11 +34,13 @@ public partial class MainViewModel : ObservableObject, IRecipient<DocumentRegist
         RegisterDocumentViewModel registerVm,
         SearchViewModel searchVm,
         IMovementService movementService,
-        DashboardViewModel dashboardVm)
+        DashboardViewModel dashboardVm,
+        IBackupService backupService)
     {
         _docService = docService;
         _registerVm = registerVm;
         _movementService = movementService;
+        _backupService = backupService;
         SearchVm = searchVm;
         DashboardVm = dashboardVm;
         WeakReferenceMessenger.Default.Register(this);
@@ -125,5 +130,36 @@ public partial class MainViewModel : ObservableObject, IRecipient<DocumentRegist
     {
         var location = await _movementService.GetCurrentLocationAsync(documentId);
         return location?.ToPositionName ?? "\u2014";
+    }
+
+    [RelayCommand]
+    private async Task BackupAsync()
+    {
+        try
+        {
+            using var dialog = new FolderBrowserDialog
+            {
+                ShowNewFolderButton = true,
+                Description = "Select folder to save backup"
+            };
+
+            if (dialog.ShowDialog() == DialogResult.OK && !string.IsNullOrWhiteSpace(dialog.SelectedPath))
+            {
+                var backupPath = await _backupService.CreateBackupAsync(dialog.SelectedPath);
+                System.Windows.MessageBox.Show(
+                    $"Backup created successfully:\n{backupPath}",
+                    "Backup Complete",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show(
+                $"Backup failed: {ex.Message}",
+                "Backup Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
     }
 }

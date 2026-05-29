@@ -36,6 +36,7 @@
                             <ColumnDefinition Width="140" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
@@ -87,11 +88,15 @@
                                 Command="{Binding OpenReportWindowCommand}"
                                 Width="70" Margin="8,4,4,0" />
 
-                        <Button Grid.Row="1" Grid.Column="7" Content="⚙ Positions"
+                        <Button Grid.Row="1" Grid.Column="7" Content="💾 Backup"
+                                Command="{Binding BackupCommand}"
+                                Width="75" Margin="8,4,4,0" />
+
+                        <Button Grid.Row="1" Grid.Column="8" Content="⚙ Positions"
                                 Command="{Binding OpenManagePositionsCommand}"
                                 Width="80" Margin="8,4,4,0" />
 
-                        <TextBlock Grid.Row="1" Grid.Column="8"
+                        <TextBlock Grid.Row="1" Grid.Column="9"
                                    Text="{Binding SearchVm.PageIndicator}"
                                    VerticalAlignment="Center" Margin="12,4,0,0"
                                    FontWeight="SemiBold" />
