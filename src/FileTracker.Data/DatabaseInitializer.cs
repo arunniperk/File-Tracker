@@ -1,5 +1,6 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
+using FileTracker.Core.Models;
 
 namespace FileTracker.Data;
 
@@ -157,5 +158,41 @@ public class DatabaseInitializer
         await cmd.ExecuteNonQueryAsync();
 
         _logger.LogInformation("Database schema initialized successfully.");
+    }
+
+    /// <summary>
+    /// Runs PRAGMA integrity_check on the database to detect corruption.
+    /// Returns IsOk=true if the database passes the check.
+    /// </summary>
+    public async Task<IntegrityCheckResult> IntegrityCheckAsync()
+    {
+        _logger.LogInformation("Running database integrity check...");
+
+        try
+        {
+            await using var cmd = _db.CreateCommand();
+            cmd.CommandText = "PRAGMA integrity_check;";
+            var result = (await cmd.ExecuteScalarAsync()) as string ?? string.Empty;
+
+            var isOk = result.Equals("ok", StringComparison.OrdinalIgnoreCase);
+
+            _logger.LogInformation("Database integrity check: {Result}",
+                isOk ? "PASS" : "FAIL - " + result);
+
+            return new IntegrityCheckResult
+            {
+                IsOk = isOk,
+                Message = result
+            };
+        }
+        catch (SqliteException ex)
+        {
+            _logger.LogError(ex, "Database integrity check threw exception — treating as FAIL");
+            return new IntegrityCheckResult
+            {
+                IsOk = false,
+                Message = ex.Message
+            };
+        }
     }
 }

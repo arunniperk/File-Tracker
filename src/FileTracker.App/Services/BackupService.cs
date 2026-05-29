@@ -2,6 +2,7 @@ using System.IO;
 using System.IO.Compression;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
+using FileTracker.Core.Models;
 using FileTracker.Core.Services;
 
 namespace FileTracker.App.Services;
@@ -9,6 +10,7 @@ namespace FileTracker.App.Services;
 /// <summary>
 /// Creates timestamped .zip backups of the SQLite database and attachments directory.
 /// Uses SqliteConnection.BackupDatabase() for safe online backup (Pitfall 1 mitigation).
+/// Also supports restore from backup and database integrity checks.
 /// </summary>
 public class BackupService : IBackupService
 {
@@ -164,5 +166,190 @@ public class BackupService : IBackupService
         }
 
         _logger.LogDebug("Copied {Count} attachment files to staging", files.Length);
+    }
+
+    /// <inheritdoc />
+    public async Task RestoreFromBackupAsync(string backupFilePath, CancellationToken ct = default)
+    {
+        if (!File.Exists(backupFilePath))
+        {
+            throw new FileNotFoundException(
+                $"Backup file not found: {backupFilePath}", backupFilePath);
+        }
+
+        ct.ThrowIfCancellationRequested();
+
+        var tempExtractDir = Path.Combine(Path.GetTempPath(), $"ft_restore_{Guid.NewGuid():N}");
+
+        try
+        {
+            // 1. Extract the backup .zip to a temp directory
+            ZipFile.ExtractToDirectory(backupFilePath, tempExtractDir);
+
+            ct.ThrowIfCancellationRequested();
+
+            // 2. Find the .db file in extracted contents
+            var dbFiles = Directory.GetFiles(tempExtractDir, "*.db", SearchOption.TopDirectoryOnly);
+            if (dbFiles.Length == 0)
+            {
+                throw new InvalidOperationException(
+                    "Backup file does not contain a database file.");
+            }
+            var backupDbPath = dbFiles[0];
+
+            // 3. Validate the backup .db is a valid SQLite database (T-04-04 mitigation)
+            await ValidateBackupDatabaseAsync(backupDbPath, ct);
+
+            // 4. Get current DB path and attachments path
+            var currentDbPath = _db.DataSource;
+            var currentAttachmentsDir = _attachmentRoot;
+
+            // 5. Close connection to allow file overwrite, then copy backup DB over current DB
+            var wasOpen = _db.State == System.Data.ConnectionState.Open;
+            if (wasOpen)
+            {
+                await _db.CloseAsync();
+            }
+
+            try
+            {
+                // Clean up WAL/SHM files that may prevent overwrite
+                var walPath = currentDbPath + "-wal";
+                var shmPath = currentDbPath + "-shm";
+                try { if (File.Exists(walPath)) File.Delete(walPath); } catch { /* best effort */ }
+                try { if (File.Exists(shmPath)) File.Delete(shmPath); } catch { /* best effort */ }
+
+                File.Copy(backupDbPath, currentDbPath, overwrite: true);
+
+                // 6. Restore attachments: delete current attachments dir, copy from backup
+                var backupAttachmentsDir = Path.Combine(tempExtractDir, "attachments");
+                if (Directory.Exists(backupAttachmentsDir))
+                {
+                    if (Directory.Exists(currentAttachmentsDir))
+                    {
+                        Directory.Delete(currentAttachmentsDir, recursive: true);
+                    }
+                    CopyDirectoryRecursive(backupAttachmentsDir, currentAttachmentsDir);
+                }
+
+                _logger.LogInformation("Restore completed from backup: {Path}", backupFilePath);
+            }
+            finally
+            {
+                // Re-open the connection
+                if (wasOpen)
+                {
+                    await _db.OpenAsync();
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex) when (ex is not FileNotFoundException
+                                   && ex is not InvalidOperationException)
+        {
+            _logger.LogError(ex, "Restore failed from {Path}", backupFilePath);
+            throw new InvalidOperationException(
+                $"Failed to restore from backup {backupFilePath}: {ex.Message}", ex);
+        }
+        finally
+        {
+            // Clean up temp extract directory
+            try
+            {
+                if (Directory.Exists(tempExtractDir))
+                {
+                    Directory.Delete(tempExtractDir, recursive: true);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to clean up restore temp directory: {Path}", tempExtractDir);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Validates that a backup .db file is a valid SQLite database by opening a
+    /// temporary connection and running PRAGMA integrity_check (T-04-04 mitigation).
+    /// </summary>
+    private async Task ValidateBackupDatabaseAsync(string backupDbPath, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+
+        var connectionString = new SqliteConnectionStringBuilder
+        {
+            DataSource = backupDbPath,
+            Mode = SqliteOpenMode.ReadOnly,
+            Pooling = false
+        }.ToString();
+
+        await using var backupConn = new SqliteConnection(connectionString);
+        await backupConn.OpenAsync(ct);
+
+        await using var cmd = backupConn.CreateCommand();
+        cmd.CommandText = "PRAGMA integrity_check;";
+        var result = (await cmd.ExecuteScalarAsync(ct)) as string;
+
+        if (result is null || !result.Equals("ok", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                $"Backup database is corrupted: {result ?? "null"}");
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<IntegrityCheckResult> CheckDatabaseIntegrityAsync(CancellationToken ct = default)
+    {
+        ct.ThrowIfCancellationRequested();
+
+        try
+        {
+            await using var cmd = _db.CreateCommand();
+            cmd.CommandText = "PRAGMA integrity_check;";
+            var result = (await cmd.ExecuteScalarAsync(ct)) as string ?? string.Empty;
+
+            var isOk = result.Equals("ok", StringComparison.OrdinalIgnoreCase);
+
+            _logger.LogInformation("Database integrity check: {Result}",
+                isOk ? "PASS" : "FAIL - " + result);
+
+            return new IntegrityCheckResult
+            {
+                IsOk = isOk,
+                Message = result
+            };
+        }
+        catch (SqliteException ex)
+        {
+            _logger.LogError(ex, "Database integrity check threw exception — treating as FAIL");
+            return new IntegrityCheckResult
+            {
+                IsOk = false,
+                Message = ex.Message
+            };
+        }
+    }
+
+    /// <summary>
+    /// Recursively copies a directory and its contents to a destination path.
+    /// </summary>
+    private static void CopyDirectoryRecursive(string sourceDir, string destDir)
+    {
+        Directory.CreateDirectory(destDir);
+
+        foreach (var file in Directory.GetFiles(sourceDir))
+        {
+            var destFile = Path.Combine(destDir, Path.GetFileName(file));
+            File.Copy(file, destFile, overwrite: true);
+        }
+
+        foreach (var dir in Directory.GetDirectories(sourceDir))
+        {
+            var destSubDir = Path.Combine(destDir, Path.GetFileName(dir));
+            CopyDirectoryRecursive(dir, destSubDir);
+        }
     }
 }
