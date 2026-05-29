@@ -234,6 +234,25 @@ public class DocumentRepository : IDocumentRepository
         return results.AsList();
     }
 
+    public async Task<IReadOnlyList<Document>> GetByMonthAsync(int year, int month)
+    {
+        const string sql = @"
+            SELECT d.Id, d.Direction, d.Sender, d.Recipient, d.Subject, d.DocumentDate,
+                   d.OriginalFileNumber, d.TrackingId, d.Remarks, d.CreatedAt, d.UpdatedAt, d.IsDeleted
+            FROM Documents d
+            WHERE d.IsDeleted = 0
+              AND strftime('%Y', d.DocumentDate) = @Year
+              AND strftime('%m', d.DocumentDate) = @Month
+            ORDER BY d.DocumentDate, d.Id;";
+
+        var results = await _db.QueryAsync<Document>(sql, new
+        {
+            Year = year.ToString(),
+            Month = month.ToString("D2")
+        });
+        return results.AsList();
+    }
+
     public async Task<IReadOnlyList<Document>> GetOverdueAsync(int thresholdDays = 7)
     {
         var dateFilter = $"-{thresholdDays} days";

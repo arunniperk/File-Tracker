@@ -33,4 +33,10 @@ public interface IDocumentRepository
     /// Unmoved documents are excluded.
     /// </summary>
     Task<IReadOnlyList<Document>> GetOverdueAsync(int thresholdDays = 7);
+
+    /// <summary>
+    /// Returns all non-deleted documents for the specified month and year,
+    /// ordered by DocumentDate ascending.
+    /// </summary>
+    Task<IReadOnlyList<Document>> GetByMonthAsync(int year, int month);
 }

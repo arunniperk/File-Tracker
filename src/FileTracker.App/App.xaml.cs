@@ -4,6 +4,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using QuestPDF.Infrastructure;
 using Serilog;
 using FileTracker.App.ViewModels;
 using FileTracker.App.Views;
@@ -89,6 +90,9 @@ public partial class App : Application
 
         _host = builder.Build();
         await _host.StartAsync();
+
+        // QuestPDF Community MIT license — required before any PDF generation
+        QuestPDF.Settings.License = LicenseType.Community;
 
         // Initialize database schema
         var initializer = ActivatorUtilities

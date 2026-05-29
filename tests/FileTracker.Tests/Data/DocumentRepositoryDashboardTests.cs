@@ -261,4 +261,135 @@ public class DocumentRepositoryDashboardTests : IAsyncLifetime
         result.Should().ContainSingle(d => d.OriginalFileNumber == "OVER-MOVED");
         result.Should().NotContain(d => d.OriginalFileNumber == "OVER-UNMOVED");
     }
+
+    // ── Helpers: report query seeding ────────────────────────────
+
+    private async Task<Document> SeedDocumentWithDate(string originalFileNumber, DocumentDirection direction,
+        string? sender, DateTime documentDate, string trackingId = "0001/2026")
+    {
+        var doc = new Document
+        {
+            Direction = direction,
+            Sender = sender ?? "Default Sender",
+            Recipient = direction == DocumentDirection.Outgoing ? "Default Recipient" : null,
+            Subject = "Report Test Subject",
+            DocumentDate = documentDate,
+            OriginalFileNumber = originalFileNumber,
+            TrackingId = trackingId,
+            Remarks = null,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            IsDeleted = false
+        };
+        doc.Id = await _repository.InsertAsync(doc);
+        return doc;
+    }
+
+    private async Task<Document> SeedDeletedDocument(string originalFileNumber, DateTime documentDate)
+    {
+        // Insert normally, then update IsDeleted directly via SQL
+        var doc = new Document
+        {
+            Direction = DocumentDirection.Incoming,
+            Sender = "Some Sender",
+            Subject = "Deleted Doc",
+            DocumentDate = documentDate,
+            OriginalFileNumber = originalFileNumber,
+            TrackingId = "DEL/2026",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            IsDeleted = false
+        };
+        doc.Id = await _repository.InsertAsync(doc);
+
+        var cmd = _connection.CreateCommand();
+        cmd.CommandText = "UPDATE Documents SET IsDeleted = 1 WHERE Id = @Id";
+        var param = cmd.CreateParameter();
+        param.ParameterName = "@Id";
+        param.Value = doc.Id;
+        cmd.Parameters.Add(param);
+        await cmd.ExecuteNonQueryAsync();
+
+        doc.IsDeleted = true;
+        return doc;
+    }
+
+    // ── Test 8: GetByMonthAsync returns only documents from specified month/year, ordered by DocumentDate ──
+
+    [Fact]
+    public async Task GetByMonthAsync_ReturnsDocumentsForSpecifiedMonthOrderedByDate()
+    {
+        // Arrange: 3 docs in May 2026, 1 doc in April 2026
+        var may1 = await SeedDocumentWithDate("REP-MAY-01", DocumentDirection.Incoming, "Dept A",
+            new DateTime(2026, 5, 10));
+        var may2 = await SeedDocumentWithDate("REP-MAY-02", DocumentDirection.Incoming, "Dept B",
+            new DateTime(2026, 5, 15));
+        var may3 = await SeedDocumentWithDate("REP-MAY-03", DocumentDirection.Outgoing, null,
+            new DateTime(2026, 5, 5));
+        var apr1 = await SeedDocumentWithDate("REP-APR-01", DocumentDirection.Incoming, "Dept C",
+            new DateTime(2026, 4, 20));
+
+        // Act
+        var result = await _repository.GetByMonthAsync(2026, 5);
+
+        // Assert: only May docs, ordered by DocumentDate ascending
+        result.Should().HaveCount(3);
+        result[0].OriginalFileNumber.Should().Be("REP-MAY-03"); // May 5
+        result[1].OriginalFileNumber.Should().Be("REP-MAY-01"); // May 10
+        result[2].OriginalFileNumber.Should().Be("REP-MAY-02"); // May 15
+    }
+
+    // ── Test 9: GetByMonthAsync returns empty list when no documents match ──
+
+    [Fact]
+    public async Task GetByMonthAsync_ReturnsEmptyWhenNoDocumentsMatch()
+    {
+        // Arrange: docs only in May 2026
+        await SeedDocumentWithDate("REP-ONLY-MAY", DocumentDirection.Incoming, "Dept A",
+            new DateTime(2026, 5, 10));
+
+        // Act: query for June 2026 (no docs)
+        var result = await _repository.GetByMonthAsync(2026, 6);
+
+        // Assert
+        result.Should().BeEmpty();
+    }
+
+    // ── Test 10: GetByMonthAsync excludes soft-deleted documents ──
+
+    [Fact]
+    public async Task GetByMonthAsync_ExcludesSoftDeletedDocuments()
+    {
+        // Arrange: 2 docs in May, one is soft-deleted
+        var activeDoc = await SeedDocumentWithDate("REP-ACTIVE", DocumentDirection.Incoming, "Dept A",
+            new DateTime(2026, 5, 10));
+        var deletedDoc = await SeedDeletedDocument("REP-DELETED", new DateTime(2026, 5, 12));
+
+        // Act
+        var result = await _repository.GetByMonthAsync(2026, 5);
+
+        // Assert
+        result.Should().HaveCount(1);
+        result[0].OriginalFileNumber.Should().Be("REP-ACTIVE");
+    }
+
+    // ── Test 11: GetByMonthAsync returns both Incoming and Outgoing documents ──
+
+    [Fact]
+    public async Task GetByMonthAsync_ReturnsBothIncomingAndOutgoing()
+    {
+        // Arrange
+        var incoming = await SeedDocumentWithDate("REP-IN", DocumentDirection.Incoming, "Sender X",
+            new DateTime(2026, 5, 10));
+        var outgoing = await SeedDocumentWithDate("REP-OUT", DocumentDirection.Outgoing, null,
+            new DateTime(2026, 5, 12));
+
+        // Act
+        var result = await _repository.GetByMonthAsync(2026, 5);
+
+        // Assert
+        result.Should().HaveCount(2);
+        result.Should().Contain(d => d.Direction == DocumentDirection.Incoming);
+        result.Should().Contain(d => d.Direction == DocumentDirection.Outgoing);
+    }
 }
