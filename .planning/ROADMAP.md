@@ -13,7 +13,7 @@ A 4-phase build delivering an IIT Dharwad Registrar Office file tracking system.
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation — Data Model & Core Registration** - SQLite database, MVVM architecture, and incoming/outgoing document registration with auto-generated file numbers and audit trails (completed 2026-05-29)
-- [ ] **Phase 2: Search & Movement Tracking** - Document search with pagination, configurable officer hierarchy, and append-only movement tracking with current status
+- [x] **Phase 2: Search & Movement Tracking** - Document search with pagination, configurable officer hierarchy, and append-only movement tracking with current status (completed 2026-05-29)
 - [ ] **Phase 3: Dashboard, Reports & Attachments** - Operational dashboard with pending/overdue tracking, monthly summary reports with PDF/Excel export, and scanned document attachments
 - [ ] **Phase 4: Data Safety & Management** - One-click backup/restore, automatic daily backups on close, and database integrity checks on startup
 
@@ -52,7 +52,7 @@ Plans:
 Plans:
 - [x] 02-01-PLAN.md — Configurable officer hierarchy with position management UI (MOVE-05)
 - [x] 02-02-PLAN.md — Document search with Dapper DynamicParameters and paginated DataGrid (SRCH-01, SRCH-02, SRCH-04)
-- [ ] 02-03-PLAN.md — Append-only movement tracking with recording dialog and history display (MOVE-01, MOVE-02, MOVE-03, MOVE-04, SRCH-03)
+- [x] 02-03-PLAN.md — Append-only movement tracking with recording dialog and history display (MOVE-01, MOVE-02, MOVE-03, MOVE-04, SRCH-03)
 **UI hint**: yes
 
 ### Phase 3: Dashboard, Reports & Attachments
@@ -87,6 +87,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation — Data Model & Core Registration | 3/3 | Complete   | 2026-05-29 |
-| 2. Search & Movement Tracking | 1/3 | In Progress|  |
+| 2. Search & Movement Tracking | 3/3 | Complete   | 2026-05-29 |
 | 3. Dashboard, Reports & Attachments | 0/TBD | Not started | - |
 | 4. Data Safety & Management | 0/TBD | Not started | - |

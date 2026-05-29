@@ -19,15 +19,15 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **SRCH-01**: User can search documents by file number, subject, sender/recipient, or date range
 - [x] **SRCH-02**: User can view full details of any registered document in a read-only detail panel
-- [ ] **SRCH-03**: User can view the complete movement history of a document (every officer it passed through, with dates)
+- [x] **SRCH-03**: User can view the complete movement history of a document (every officer it passed through, with dates)
 - [x] **SRCH-04**: Search results are paginated (not all loaded at once)
 
 ### Movement & Status Tracking
 
-- [ ] **MOVE-01**: User can record a document movement to an officer (select from configurable hierarchy: Faculty/Department, Registrar, Dean Admin, Director, plus AR, DR, AEE, EE)
-- [ ] **MOVE-02**: Each movement records the officer, date, direction (sent/received), and optional remarks
-- [ ] **MOVE-03**: User can view the current status/location of any document at a glance
-- [ ] **MOVE-04**: Movement history is append-only and immutable (cannot edit or delete movements)
+- [x] **MOVE-01**: User can record a document movement to an officer (select from configurable hierarchy: Faculty/Department, Registrar, Dean Admin, Director, plus AR, DR, AEE, EE)
+- [x] **MOVE-02**: Each movement records the officer, date, direction (sent/received), and optional remarks
+- [x] **MOVE-03**: User can view the current status/location of any document at a glance
+- [x] **MOVE-04**: Movement history is append-only and immutable (cannot edit or delete movements)
 - [x] **MOVE-05**: Officer hierarchy is configurable from the database (add/remove/rename positions)
 
 ### Monthly Reports
@@ -89,12 +89,12 @@ Deferred to future release. Tracked but not in current roadmap.
 | REG-05 | Phase 1 | Complete |
 | SRCH-01 | Phase 2 | Complete |
 | SRCH-02 | Phase 2 | Complete |
-| SRCH-03 | Phase 2 | Pending |
+| SRCH-03 | Phase 2 | Complete |
 | SRCH-04 | Phase 2 | Complete |
-| MOVE-01 | Phase 2 | Pending |
-| MOVE-02 | Phase 2 | Pending |
-| MOVE-03 | Phase 2 | Pending |
-| MOVE-04 | Phase 2 | Pending |
+| MOVE-01 | Phase 2 | Complete |
+| MOVE-02 | Phase 2 | Complete |
+| MOVE-03 | Phase 2 | Complete |
+| MOVE-04 | Phase 2 | Complete |
 | MOVE-05 | Phase 2 | Complete |
 | RPT-01 | Phase 3 | Pending |
 | RPT-02 | Phase 3 | Pending |
