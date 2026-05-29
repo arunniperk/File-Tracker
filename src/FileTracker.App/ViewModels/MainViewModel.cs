@@ -13,6 +13,7 @@ public partial class MainViewModel : ObservableObject, IRecipient<DocumentRegist
 {
     private readonly IDocumentService _docService;
     private readonly RegisterDocumentViewModel _registerVm;
+    private readonly IMovementService _movementService;
 
     public SearchViewModel SearchVm { get; }
 
@@ -24,12 +25,15 @@ public partial class MainViewModel : ObservableObject, IRecipient<DocumentRegist
     public MainViewModel(
         IDocumentService docService,
         RegisterDocumentViewModel registerVm,
-        SearchViewModel searchVm)
+        SearchViewModel searchVm,
+        IMovementService movementService)
     {
         _docService = docService;
         _registerVm = registerVm;
+        _movementService = movementService;
         SearchVm = searchVm;
         WeakReferenceMessenger.Default.Register(this);
+        WeakReferenceMessenger.Default.Register<DocumentMovedMessage>(this, (_, _) => SearchVm.SearchCommand.Execute(null));
         SearchVm.SearchCommand.Execute(null);
     }
 
@@ -77,5 +81,29 @@ public partial class MainViewModel : ObservableObject, IRecipient<DocumentRegist
             Owner = System.Windows.Application.Current.MainWindow
         };
         window.ShowDialog();
+    }
+
+    [RelayCommand]
+    private async Task RecordMovementAsync(Document document)
+    {
+        var app = (App)System.Windows.Application.Current;
+        var vm = app.Services.GetRequiredService<RecordMovementViewModel>();
+        var window = new RecordMovementWindow
+        {
+            DataContext = vm,
+            Owner = System.Windows.Application.Current.MainWindow
+        };
+        await window.LoadDocumentAsync(document);
+        window.ShowDialog();
+    }
+
+    /// <summary>
+    /// Look up the current location name for a document.
+    /// Returns the ToPositionName of the most recent movement, or "—" if none.
+    /// </summary>
+    public async Task<string> GetCurrentLocationForDocumentAsync(int documentId)
+    {
+        var location = await _movementService.GetCurrentLocationAsync(documentId);
+        return location?.ToPositionName ?? "\u2014";
     }
 }

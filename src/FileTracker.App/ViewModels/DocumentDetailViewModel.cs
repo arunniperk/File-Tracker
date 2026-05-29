@@ -13,12 +13,16 @@ public partial class DocumentDetailViewModel : ObservableObject
 {
     private readonly IDocumentService _docService;
     private readonly IDocumentRepository _repository;
+    private readonly IMovementService _movementService;
 
     [ObservableProperty]
     private Document? _selectedDocument;
 
     [ObservableProperty]
     private ObservableCollection<DocumentAudit> _auditEntries = new();
+
+    [ObservableProperty]
+    private ObservableCollection<Movement> _movementHistory = new();
 
     [ObservableProperty]
     private bool _isEditMode;
@@ -45,10 +49,11 @@ public partial class DocumentDetailViewModel : ObservableObject
     [ObservableProperty]
     private string _errorMessage = string.Empty;
 
-    public DocumentDetailViewModel(IDocumentService docService, IDocumentRepository repository)
+    public DocumentDetailViewModel(IDocumentService docService, IDocumentRepository repository, IMovementService movementService)
     {
         _docService = docService;
         _repository = repository;
+        _movementService = movementService;
     }
 
     [RelayCommand]
@@ -62,6 +67,9 @@ public partial class DocumentDetailViewModel : ObservableObject
 
         var entries = await _repository.GetAuditEntriesAsync(documentId);
         AuditEntries = new ObservableCollection<DocumentAudit>(entries);
+
+        var movements = await _movementService.GetMovementHistoryAsync(documentId);
+        MovementHistory = new ObservableCollection<Movement>(movements);
     }
 
     [RelayCommand]

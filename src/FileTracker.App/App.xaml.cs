@@ -65,10 +65,12 @@ public partial class App : Application
         // Data layer
         builder.Services.AddSingleton<IDocumentRepository, DocumentRepository>();
         builder.Services.AddSingleton<IPositionRepository, PositionRepository>();
+        builder.Services.AddSingleton<IMovementRepository, MovementRepository>();
 
         // Services
         builder.Services.AddSingleton<IDocumentService, DocumentService>();
         builder.Services.AddSingleton<IPositionService, PositionService>();
+        builder.Services.AddSingleton<IMovementService, MovementService>();
 
         // ViewModels — transient so each window gets fresh state
         builder.Services.AddTransient<MainViewModel>();
@@ -76,6 +78,7 @@ public partial class App : Application
         builder.Services.AddTransient<DocumentDetailViewModel>();
         builder.Services.AddTransient<SearchViewModel>();
         builder.Services.AddTransient<ManagePositionsViewModel>();
+        builder.Services.AddTransient<RecordMovementViewModel>();
 
         // Views
         builder.Services.AddSingleton<MainWindow>();

@@ -163,6 +163,34 @@
                                         Width="*" />
                 </DataGrid.Columns>
             </DataGrid>
+
+            <!-- Movement History Section -->
+            <TextBlock Text="Movement History" FontSize="16" FontWeight="SemiBold"
+                       Margin="0,24,0,8" />
+
+            <DataGrid ItemsSource="{Binding MovementHistory}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      HeadersVisibility="Column"
+                      MaxHeight="200">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Date"
+                                        Binding="{Binding MovementDate, StringFormat={}{0:dd-MMM-yyyy}}"
+                                        Width="100" />
+                    <DataGridTextColumn Header="From"
+                                        Binding="{Binding FromPositionName}"
+                                        Width="130" />
+                    <DataGridTextColumn Header="To"
+                                        Binding="{Binding ToPositionName}"
+                                        Width="130" />
+                    <DataGridTextColumn Header="Direction"
+                                        Binding="{Binding Direction}"
+                                        Width="80" />
+                    <DataGridTextColumn Header="Remarks"
+                                        Binding="{Binding Remarks}"
+                                        Width="*" />
+                </DataGrid.Columns>
+            </DataGrid>
         </StackPanel>
     </Border>
 </UserControl>

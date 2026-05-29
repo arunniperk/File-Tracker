@@ -118,6 +118,28 @@ public class DatabaseInitializer
         cmd.CommandText = seedPositions;
         await cmd.ExecuteNonQueryAsync();
 
+        const string createMovementsTable = @"
+            CREATE TABLE IF NOT EXISTS Movements (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                DocumentId INTEGER NOT NULL,
+                FromPositionId INTEGER,
+                ToPositionId INTEGER NOT NULL,
+                Direction TEXT NOT NULL CHECK(Direction IN ('Sent', 'Received')),
+                MovementDate TEXT NOT NULL,
+                Remarks TEXT,
+                CreatedAt TEXT NOT NULL DEFAULT (datetime('now')),
+                FOREIGN KEY (DocumentId) REFERENCES Documents(Id),
+                FOREIGN KEY (FromPositionId) REFERENCES Positions(Id),
+                FOREIGN KEY (ToPositionId) REFERENCES Positions(Id)
+            );
+            CREATE INDEX IF NOT EXISTS IX_Movements_DocumentId
+            ON Movements(DocumentId);
+            CREATE INDEX IF NOT EXISTS IX_Movements_DocumentId_Date
+            ON Movements(DocumentId, MovementDate);";
+
+        cmd.CommandText = createMovementsTable;
+        await cmd.ExecuteNonQueryAsync();
+
         _logger.LogInformation("Database schema initialized successfully.");
     }
 }

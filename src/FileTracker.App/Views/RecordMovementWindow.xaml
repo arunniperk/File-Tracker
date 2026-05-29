@@ -1,0 +1,73 @@
+<Window x:Class="FileTracker.App.Views.RecordMovementWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converters="clr-namespace:FileTracker.App.Converters"
+        Title="{Binding WindowTitle}" Height="420" Width="480"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize">
+    <Window.Resources>
+        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
+    </Window.Resources>
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Row 0: Document info (read-only) -->
+        <TextBlock Grid.Row="0" Margin="0,0,0,8" FontWeight="Bold">
+            <Run Text="Document: " />
+            <Run Text="{Binding Document.Subject}" />
+        </TextBlock>
+
+        <!-- Row 1: From Position -->
+        <TextBlock Grid.Row="1" Text="From Position:" Margin="0,6,0,2" />
+        <ComboBox Grid.Row="2"
+                  ItemsSource="{Binding Positions}"
+                  SelectedItem="{Binding SelectedFromPosition}"
+                  DisplayMemberPath="Name"
+                  IsEditable="False" />
+
+        <!-- Row 3: To Position (required) -->
+        <TextBlock Grid.Row="3" Text="To Position: *" Margin="0,8,0,2" />
+        <ComboBox Grid.Row="4"
+                  ItemsSource="{Binding Positions}"
+                  SelectedItem="{Binding SelectedToPosition}"
+                  DisplayMemberPath="Name"
+                  IsEditable="False" />
+
+        <!-- Row 5: Direction + Date -->
+        <StackPanel Grid.Row="5" Orientation="Horizontal" Margin="0,8,0,4">
+            <TextBlock Text="Direction:" VerticalAlignment="Center" Margin="0,0,6,0" />
+            <ComboBox SelectedValue="{Binding DirectionText}" Width="100" Margin="0,0,16,0">
+                <ComboBoxItem Content="Sent" />
+                <ComboBoxItem Content="Received" />
+            </ComboBox>
+            <TextBlock Text="Date:" VerticalAlignment="Center" Margin="0,0,6,0" />
+            <DatePicker SelectedDate="{Binding MovementDate}" Width="140" />
+        </StackPanel>
+
+        <!-- Row 6: Remarks -->
+        <TextBlock Grid.Row="6" Text="Remarks:" Margin="0,6,0,2" />
+        <TextBox Grid.Row="7" Text="{Binding Remarks, UpdateSourceTrigger=PropertyChanged}"
+                 TextWrapping="Wrap" AcceptsReturn="True" MinHeight="50"
+                 VerticalScrollBarVisibility="Auto" />
+
+        <!-- Error message -->
+        <TextBlock Grid.Row="8" Text="{Binding ErrorMessage}" Foreground="Red"
+                   Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"
+                   Margin="0,4,0,0" TextWrapping="Wrap" />
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="9" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+            <Button Content="Save" Command="{Binding SaveCommand}" Width="70" Margin="0,0,8,0" IsDefault="True" />
+            <Button Content="Cancel" IsCancel="True" Width="70" />
+        </StackPanel>
+    </Grid>
+</Window>

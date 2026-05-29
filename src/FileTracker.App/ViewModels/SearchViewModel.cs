@@ -10,6 +10,7 @@ namespace FileTracker.App.ViewModels;
 public partial class SearchViewModel : ObservableObject
 {
     private readonly IDocumentService _docService;
+    private readonly IMovementService _movementService;
 
     // ── Filter properties ──────────────────────────────────────
 
@@ -63,9 +64,10 @@ public partial class SearchViewModel : ObservableObject
         ? $"Page {CurrentPage} of {TotalPages} ({TotalCount} results)"
         : "No results";
 
-    public SearchViewModel(IDocumentService docService)
+    public SearchViewModel(IDocumentService docService, IMovementService movementService)
     {
         _docService = docService;
+        _movementService = movementService;
     }
 
     // ── Commands ─────────────────────────────────────────────────
@@ -142,6 +144,13 @@ public partial class SearchViewModel : ObservableObject
         SearchResults = new ObservableCollection<Document>(result.Results);
         TotalCount = result.TotalCount;
         HasResults = result.TotalCount > 0;
+
+        // Populate current location for each document
+        foreach (var doc in SearchResults)
+        {
+            var loc = await _movementService.GetCurrentLocationAsync(doc.Id);
+            doc.CurrentLocation = loc?.ToPositionName ?? "\u2014";
+        }
 
         // Notify computed properties
         OnPropertyChanged(nameof(TotalPages));

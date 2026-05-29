@@ -14,4 +14,10 @@ public class Document
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public bool IsDeleted { get; set; }
+
+    /// <summary>
+    /// Display-only: current location derived from most recent movement.
+    /// NOT stored in the Documents table — populated by the application layer after querying movements.
+    /// </summary>
+    public string CurrentLocation { get; set; } = "\u2014";
 }
