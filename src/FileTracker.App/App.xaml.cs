@@ -128,6 +128,18 @@ public partial class App : Application
     {
         if (_host is not null)
         {
+            // D-06: Auto-backup on close before host shutdown
+            // Backup failure must NOT block application exit (T-04-08)
+            try
+            {
+                var backupService = _host.Services.GetRequiredService<IBackupService>();
+                await backupService.PerformAutoBackupIfEnabledAsync();
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Warning(ex, "Auto-backup on exit failed");
+            }
+
             await _host.StopAsync(TimeSpan.FromSeconds(5));
             _host.Dispose();
         }
