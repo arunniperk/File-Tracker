@@ -52,7 +52,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Data Management
 
 - [x] **DATA-01**: User can backup the database and attachments to a chosen location
-- [ ] **DATA-02**: User can restore from a backup file
+- [x] **DATA-02**: User can restore from a backup file
 - [ ] **DATA-03**: Application auto-creates daily backup on close (configurable)
 
 ## v2 Requirements
@@ -107,7 +107,7 @@ Deferred to future release. Tracked but not in current roadmap.
 | DASH-02 | Phase 3 | Complete |
 | DASH-03 | Phase 3 | Complete |
 | DATA-01 | Phase 4 | Complete |
-| DATA-02 | Phase 4 | Pending |
+| DATA-02 | Phase 4 | Complete |
 | DATA-03 | Phase 4 | Pending |
 
 **Coverage:**

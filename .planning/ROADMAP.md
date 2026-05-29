@@ -86,7 +86,7 @@ Plans:
 
 Plans:
 - [x] 04-01-PLAN.md — Manual backup: one-click .zip creation with DB + attachments, folder picker, Backup button (DATA-01)
-- [ ] 04-02-PLAN.md — Manual restore with warning confirmation + startup integrity check via PRAGMA integrity_check (DATA-02, D-09, D-10)
+- [x] 04-02-PLAN.md — Manual restore with warning confirmation + startup integrity check via PRAGMA integrity_check (DATA-02, D-09, D-10)
 - [ ] 04-03-PLAN.md — Auto-backup on close with rolling cleanup (keep last 7), configurable via appsettings.json (DATA-03, D-06, D-07, D-08)
 
 ## Progress
@@ -99,4 +99,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Foundation — Data Model & Core Registration | 3/3 | Complete   | 2026-05-29 |
 | 2. Search & Movement Tracking | 3/3 | Complete   | 2026-05-29 |
 | 3. Dashboard, Reports & Attachments | 3/3 | Complete   | 2026-05-29 |
-| 4. Data Safety & Management | 1/3 | In Progress|  |
+| 4. Data Safety & Management | 2/3 | In Progress|  |
