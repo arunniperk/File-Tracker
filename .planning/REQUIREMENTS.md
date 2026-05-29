@@ -28,7 +28,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **MOVE-02**: Each movement records the officer, date, direction (sent/received), and optional remarks
 - [ ] **MOVE-03**: User can view the current status/location of any document at a glance
 - [ ] **MOVE-04**: Movement history is append-only and immutable (cannot edit or delete movements)
-- [ ] **MOVE-05**: Officer hierarchy is configurable from the database (add/remove/rename positions)
+- [x] **MOVE-05**: Officer hierarchy is configurable from the database (add/remove/rename positions)
 
 ### Monthly Reports
 
@@ -95,7 +95,7 @@ Deferred to future release. Tracked but not in current roadmap.
 | MOVE-02 | Phase 2 | Pending |
 | MOVE-03 | Phase 2 | Pending |
 | MOVE-04 | Phase 2 | Pending |
-| MOVE-05 | Phase 2 | Pending |
+| MOVE-05 | Phase 2 | Complete |
 | RPT-01 | Phase 3 | Pending |
 | RPT-02 | Phase 3 | Pending |
 | RPT-03 | Phase 3 | Pending |

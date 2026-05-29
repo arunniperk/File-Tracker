@@ -50,7 +50,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Configurable officer hierarchy with position management UI (MOVE-05)
+- [x] 02-01-PLAN.md — Configurable officer hierarchy with position management UI (MOVE-05)
 - [ ] 02-02-PLAN.md — Document search with Dapper DynamicParameters and paginated DataGrid (SRCH-01, SRCH-02, SRCH-04)
 - [ ] 02-03-PLAN.md — Append-only movement tracking with recording dialog and history display (MOVE-01, MOVE-02, MOVE-03, MOVE-04, SRCH-03)
 **UI hint**: yes
@@ -87,6 +87,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation — Data Model & Core Registration | 3/3 | Complete   | 2026-05-29 |
-| 2. Search & Movement Tracking | 0/TBD | Not started | - |
+| 2. Search & Movement Tracking | 1/3 | In Progress|  |
 | 3. Dashboard, Reports & Attachments | 0/TBD | Not started | - |
 | 4. Data Safety & Management | 0/TBD | Not started | - |
