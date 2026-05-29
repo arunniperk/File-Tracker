@@ -30,7 +30,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. File numbers auto-generate in the configured format (e.g., IITDH/REG/2026/0001), are guaranteed unique, and cannot be blank or duplicated
   4. User can edit a previously registered document's metadata and see that the change is recorded in an immutable audit trail (who changed what, when)
   5. Application starts, creates/reopens the database, and all registered documents persist across restarts without data loss
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Walking skeleton: project scaffold, DI host, SQLite database, incoming document registration form
+- [ ] 01-02-PLAN.md — Tracking ID generation (Sl.No/YYYY), outgoing registration toggle, form validation, unsaved changes warning
+- [ ] 01-03-PLAN.md — Document edit with field-level diff, immutable audit trail, document detail panel with audit history display
 
 ### Phase 2: Search & Movement Tracking
 **Goal**: Staff can find any document, view its full history, record movements through the configurable officer hierarchy, and know exactly where every document is at any moment.
@@ -76,7 +81,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation — Data Model & Core Registration | 0/TBD | Not started | - |
+| 1. Foundation — Data Model & Core Registration | 0/3 | Not started | - |
 | 2. Search & Movement Tracking | 0/TBD | Not started | - |
 | 3. Dashboard, Reports & Attachments | 0/TBD | Not started | - |
 | 4. Data Safety & Management | 0/TBD | Not started | - |
