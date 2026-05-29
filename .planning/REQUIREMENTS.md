@@ -17,10 +17,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Document Search & View
 
-- [ ] **SRCH-01**: User can search documents by file number, subject, sender/recipient, or date range
-- [ ] **SRCH-02**: User can view full details of any registered document in a read-only detail panel
+- [x] **SRCH-01**: User can search documents by file number, subject, sender/recipient, or date range
+- [x] **SRCH-02**: User can view full details of any registered document in a read-only detail panel
 - [ ] **SRCH-03**: User can view the complete movement history of a document (every officer it passed through, with dates)
-- [ ] **SRCH-04**: Search results are paginated (not all loaded at once)
+- [x] **SRCH-04**: Search results are paginated (not all loaded at once)
 
 ### Movement & Status Tracking
 
@@ -87,10 +87,10 @@ Deferred to future release. Tracked but not in current roadmap.
 | REG-03 | Phase 1 | Complete |
 | REG-04 | Phase 1 | Complete |
 | REG-05 | Phase 1 | Complete |
-| SRCH-01 | Phase 2 | Pending |
-| SRCH-02 | Phase 2 | Pending |
+| SRCH-01 | Phase 2 | Complete |
+| SRCH-02 | Phase 2 | Complete |
 | SRCH-03 | Phase 2 | Pending |
-| SRCH-04 | Phase 2 | Pending |
+| SRCH-04 | Phase 2 | Complete |
 | MOVE-01 | Phase 2 | Pending |
 | MOVE-02 | Phase 2 | Pending |
 | MOVE-03 | Phase 2 | Pending |

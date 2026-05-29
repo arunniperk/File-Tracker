@@ -51,7 +51,7 @@ Plans:
 
 Plans:
 - [x] 02-01-PLAN.md — Configurable officer hierarchy with position management UI (MOVE-05)
-- [ ] 02-02-PLAN.md — Document search with Dapper DynamicParameters and paginated DataGrid (SRCH-01, SRCH-02, SRCH-04)
+- [x] 02-02-PLAN.md — Document search with Dapper DynamicParameters and paginated DataGrid (SRCH-01, SRCH-02, SRCH-04)
 - [ ] 02-03-PLAN.md — Append-only movement tracking with recording dialog and history display (MOVE-01, MOVE-02, MOVE-03, MOVE-04, SRCH-03)
 **UI hint**: yes
 
