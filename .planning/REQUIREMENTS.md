@@ -103,9 +103,9 @@ Deferred to future release. Tracked but not in current roadmap.
 | ATCH-01 | Phase 3 | Pending |
 | ATCH-02 | Phase 3 | Pending |
 | ATCH-03 | Phase 3 | Pending |
-| DASH-01 | Phase 4 | Pending |
-| DASH-02 | Phase 4 | Pending |
-| DASH-03 | Phase 4 | Pending |
+| DASH-01 | Phase 3 | Pending |
+| DASH-02 | Phase 3 | Pending |
+| DASH-03 | Phase 3 | Pending |
 | DATA-01 | Phase 4 | Pending |
 | DATA-02 | Phase 4 | Pending |
 | DATA-03 | Phase 4 | Pending |
